@@ -1,0 +1,170 @@
+{
+    "content_scripts": [
+        {
+            "js": [
+                "script_all_frames.js"
+            ],
+            "css": [
+                "style_all_frames.css"
+            ],
+            "matches": [
+                "<all_urls>"
+            ],
+            "all_frames": true,
+            "run_at": "document_start"
+        },
+        {
+            "js": [
+                "script_all_frames_end.js"
+            ],
+            "matches": [
+                "<all_urls>"
+            ],
+            "all_frames": true,
+            "run_at": "document_end"
+        },
+        {
+            "css": [
+                "style.css"
+            ],
+            "matches": [
+                "<all_urls>"
+            ],
+            "run_at": "document_start"
+        },
+        {
+            "js": [
+                "bilibili.js"
+            ],
+            "css": [
+                "bilibili.css"
+            ],
+            "matches": [
+                "*://*.bilibili.com/**"
+            ],
+            "all_frames": true,
+            "run_at": "document_start"
+        },
+        {
+            "js": [
+                "bilibili_end.js"
+            ],
+            "matches": [
+                "*://*.bilibili.com/**"
+            ],
+            "run_at": "document_end"
+        },
+        {
+            "js": [
+                "bilibili_live.js"
+            ],
+            "matches": [
+                "*://live.bilibili.com/**",
+                "*://www.bilibili.com/blackboard/live/**"
+            ],
+            "all_frames": true,
+            "run_at": "document_end"
+        },
+        {
+            "css": [
+                "bilibili_live.css"
+            ],
+            "matches": [
+                "*://live.bilibili.com/**",
+                "*://www.bilibili.com/blackboard/live/**"
+            ],
+            "all_frames": true,
+            "run_at": "document_start"
+        },
+        {
+            "css": [
+                "tieba.css"
+            ],
+            "matches": [
+                "*://tieba.baidu.com/**"
+            ],
+            "run_at": "document_start"
+        },
+        {
+            "css": [
+                "bimibimi.css"
+            ],
+            "matches": [
+                "*://*.bimiacg.com/**"
+            ],
+            "run_at": "document_start"
+        },
+        {
+            "js": [
+                "bimibimi.js"
+            ],
+            "matches": [
+                "*://*.bimiacg.com/**"
+            ],
+            "run_at": "document_end"
+        },
+        {
+            "js": [
+                "webm.js"
+            ],
+            "matches": [
+                "file://**.webm"
+            ],
+            "run_at": "document_end"
+        },
+        {
+            "css": [
+                "qidian.css"
+            ],
+            "matches": [
+                "*://read.qidian.com/chapter/*"
+            ],
+            "run_at": "document_start"
+        },
+        {
+            "css": [
+                "acfun.css"
+            ],
+            "matches": [
+                "*://www.acfun.cn/bangumi/*"
+            ],
+            "run_at": "document_start"
+        }
+    ],
+    "background": {
+        "scripts": [
+            "background.js",
+            "danmu.js"
+        ],
+        "persistent": false
+    },
+    "commands": {
+        "duplicate-tab": {
+            "suggested_key": {
+                "default": "Ctrl+Y"
+            },
+            "description": "复制标签页"
+        },
+        "switch-tab": {
+            "suggested_key": {
+                "default": "Ctrl+S"
+            },
+            "description": "切换标签页"
+        }
+    },
+    "chrome_url_overrides": {
+        "newtab": "newtab.html"
+    },
+    "permissions": [
+        "<all_urls>",
+        "clipboardRead",
+        "contextMenus",
+        "webNavigation"
+    ],
+    "icons": {
+        "16": "icon.png"
+    },
+    "name": "My Extension",
+    "version": "1.0",
+    "manifest_version": 2
+}

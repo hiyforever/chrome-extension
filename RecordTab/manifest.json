@@ -1,0 +1,18 @@
+{
+    "background": {
+        "scripts": [
+            "background.js"
+        ],
+        "persistent": false
+    },
+    "permissions": [
+        "contextMenus",
+        "tabCapture"
+    ],
+    "icons": {
+        "16": "icon.png"
+    },
+    "name": "Record Tab",
+    "version": "1.0",
+    "manifest_version": 2
+}

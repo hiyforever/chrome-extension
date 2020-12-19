@@ -1,0 +1,9 @@
+* {
+    cursor: auto !important;
+}
+a {
+    cursor: pointer !important;
+}
+#HMRichBox {
+    visibility: hidden;
+}
