@@ -1,22 +1,20 @@
 const muteTabContextMenuId = 'muteTab';
 const muteTabTitle = '将这个标签静音';
 const cancelMuteTabTitle = '将这个标签取消静音';
-chrome.tabs.onActivated.addListener(showMuteTabContextMenu);
-chrome.windows.onFocusChanged.addListener(windowId => {
-    if (windowId < 0) {
-        hiddenMuteTabContextMenu();
-    } else {
-        showMuteTabContextMenu();
-    }
-});
+chrome.tabs.onActivated.addListener(updateMuteTabContextMenu);
+chrome.windows.onFocusChanged.addListener(updateMuteTabContextMenu);
 chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
     if (changeInfo.mutedInfo) {
-        showMuteTabContextMenu();
+        updateMuteTabContextMenu();
     }
 });
 chrome.contextMenus.onClicked.addListener((info, tab) => {
     switch (info.menuItemId) {
         case muteTabContextMenuId:
+            if (tab.id < 0) {
+                alert('不支持此操作');
+                return;
+            }
             chrome.tabs.update(tab.id, { muted: !tab.mutedInfo.muted });
             break;
     }
@@ -26,19 +24,15 @@ chrome.runtime.onInstalled.addListener(() => {
         id: muteTabContextMenuId,
         title: muteTabTitle
     });
-    showMuteTabContextMenu();
+    updateMuteTabContextMenu();
 });
-function showMuteTabContextMenu() {
+function updateMuteTabContextMenu() {
     chrome.tabs.getSelected(tab => {
         if (!tab) {
             return;
         }
         chrome.contextMenus.update(muteTabContextMenuId, {
-            title: tab.mutedInfo.muted ? cancelMuteTabTitle : muteTabTitle,
-            enabled: true
+            title: tab.mutedInfo.muted ? cancelMuteTabTitle : muteTabTitle
         });
     });
-}
-function hiddenMuteTabContextMenu() {
-    chrome.contextMenus.update(muteTabContextMenuId, { enabled: false });
 }

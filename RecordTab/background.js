@@ -2,17 +2,15 @@ const recordTabContextMenuId = 'recordTab';
 const recordTabTitle = '录制标签页';
 const cancelRecordTabTitle = '结束录制标签页';
 const recordTabs = {};
-chrome.tabs.onActivated.addListener(showRecordTabContextMenu);
-chrome.windows.onFocusChanged.addListener(windowId => {
-    if (windowId < 0) {
-        hiddenMuteTabContextMenu();
-    } else {
-        showRecordTabContextMenu();
-    }
-});
+chrome.tabs.onActivated.addListener(updateRecordTabContextMenu);
+chrome.windows.onFocusChanged.addListener(updateRecordTabContextMenu);
 chrome.contextMenus.onClicked.addListener((info, tab) => {
     switch (info.menuItemId) {
         case recordTabContextMenuId:
+            if (tab.id < 0) {
+                alert('不支持此操作');
+                return;
+            }
             const recorder = recordTabs[tab.id];
             if (recorder) {
                 recorder.stop();
@@ -45,11 +43,11 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
                 recorder.onstop = () => {
                     delete recordTabs[tab.id];
                     stream.getTracks().forEach(track => track.stop());
-                    showRecordTabContextMenu();
+                    updateRecordTabContextMenu();
                 };
                 recorder.start(1800000);
                 recordTabs[tab.id] = recorder;
-                showRecordTabContextMenu();
+                updateRecordTabContextMenu();
             });
             break;
     }
@@ -61,17 +59,13 @@ chrome.runtime.onInstalled.addListener(() => {
         contexts: ['page']
     });
 });
-function showRecordTabContextMenu() {
+function updateRecordTabContextMenu() {
     chrome.tabs.getSelected(tab => {
         if (!tab) {
             return;
         }
         chrome.contextMenus.update(recordTabContextMenuId, {
-            title: recordTabs.hasOwnProperty(tab.id) ? cancelRecordTabTitle : recordTabTitle,
-            enabled: true
+            title: recordTabs.hasOwnProperty(tab.id) ? cancelRecordTabTitle : recordTabTitle
         });
     });
-}
-function hiddenMuteTabContextMenu() {
-    chrome.contextMenus.update(recordTabContextMenuId, { enabled: false });
 }
