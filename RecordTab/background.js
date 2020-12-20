@@ -55,8 +55,7 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
 chrome.runtime.onInstalled.addListener(() => {
     chrome.contextMenus.create({
         id: recordTabContextMenuId,
-        title: recordTabTitle,
-        contexts: ['page']
+        title: recordTabTitle
     });
 });
 function updateRecordTabContextMenu() {
