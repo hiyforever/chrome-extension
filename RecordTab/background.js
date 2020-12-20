@@ -59,12 +59,12 @@ chrome.runtime.onInstalled.addListener(() => {
     });
 });
 function updateRecordTabContextMenu() {
-    chrome.tabs.getSelected(tab => {
-        if (!tab) {
-            return;
+    chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
+        const tab = tabs[0];
+        if (tab) {
+            chrome.contextMenus.update(recordTabContextMenuId, {
+                title: tab.id in recordTabs ? cancelRecordTabTitle : recordTabTitle
+            });
         }
-        chrome.contextMenus.update(recordTabContextMenuId, {
-            title: recordTabs.hasOwnProperty(tab.id) ? cancelRecordTabTitle : recordTabTitle
-        });
     });
 }
