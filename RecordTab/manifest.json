@@ -2,11 +2,13 @@
     "background": {
         "scripts": [
             "background.js"
-        ]
+        ],
+        "persistent": false
     },
     "permissions": [
         "contextMenus",
-        "tabCapture"
+        "tabCapture",
+        "alarms"
     ],
     "icons": {
         "16": "icon.png"
