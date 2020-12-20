@@ -15,7 +15,7 @@ self.addEventListener('contextmenu', evt => {
 });
 self.addEventListener('DOMSubtreeModified', e => {
     if (e.target.querySelectorAll) {
-        e.target.querySelectorAll('*').forEach(e => {
+        Array.from(e.target.querySelectorAll('*')).slice(0, 100).forEach(e => {
             if ((e.style.backgroundColor || getComputedStyle(e).backgroundColor) == 'rgb(255, 255, 255)') {
                 e.style.backgroundColor = '#e0ce9e';
             }
