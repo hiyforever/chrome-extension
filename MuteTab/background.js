@@ -27,12 +27,12 @@ chrome.runtime.onInstalled.addListener(() => {
     updateMuteTabContextMenu();
 });
 function updateMuteTabContextMenu() {
-    chrome.tabs.getSelected(tab => {
-        if (!tab) {
-            return;
+    chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
+        const tab = tabs[0];
+        if (tab) {
+            chrome.contextMenus.update(muteTabContextMenuId, {
+                title: tab.mutedInfo.muted ? cancelMuteTabTitle : muteTabTitle
+            });
         }
-        chrome.contextMenus.update(muteTabContextMenuId, {
-            title: tab.mutedInfo.muted ? cancelMuteTabTitle : muteTabTitle
-        });
     });
 }
