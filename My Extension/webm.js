@@ -1,10 +1,13 @@
-document.querySelector('video').onloadedmetadata = () => {
-  if (this.duration === Infinity) {
-    this.ontimeupdate = () => {
-      this.ontimeupdate = null;
-      this.currentTime = 0.1;
-      this.currentTime = 0;
-    };
-    this.currentTime = Number.MAX_SAFE_INTEGER;
-  }
-};
+(() => {
+  const video = document.querySelector('video');
+  video.onloadedmetadata = () => {
+    if (video.duration === Infinity) {
+      video.ontimeupdate = () => {
+        video.ontimeupdate = null;
+        video.currentTime = 0.1;
+        video.currentTime = 0;
+      };
+      video.currentTime = Number.MAX_SAFE_INTEGER;
+    }
+  };
+})();
