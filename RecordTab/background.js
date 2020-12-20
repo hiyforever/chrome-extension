@@ -4,6 +4,11 @@ const cancelRecordTabTitle = '结束录制标签页';
 const recordTabs = {};
 chrome.tabs.onActivated.addListener(updateRecordTabContextMenu);
 chrome.windows.onFocusChanged.addListener(updateRecordTabContextMenu);
+chrome.alarms.onAlarm.addListener(() => {
+    if (Object.keys(recordTabs).length > 0) {
+        chrome.alarms.create({ when: Date.now() + 1000 });
+    }
+});
 chrome.contextMenus.onClicked.addListener((info, tab) => {
     switch (info.menuItemId) {
         case recordTabContextMenuId:
@@ -48,6 +53,9 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
                 recorder.start(1800000);
                 recordTabs[tab.id] = recorder;
                 updateRecordTabContextMenu();
+                if (Object.keys(recordTabs).length == 1) {
+                    chrome.alarms.create({ when: Date.now() + 1000 });
+                }
             });
             break;
     }
