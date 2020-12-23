@@ -33,8 +33,8 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
             chrome.tabCapture.capture({
                 video: true, audio: true, videoConstraints: {
                     mandatory: {
-                        maxWidth: tab.width,
-                        maxHeight: tab.height
+                        maxWidth: 2 * tab.width,
+                        maxHeight: 2 * tab.height
                     }
                 }
             }, stream => {
