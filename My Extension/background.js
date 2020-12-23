@@ -69,3 +69,9 @@ chrome.runtime.onInstalled.addListener(() => {
         contexts: ['link']
     });
 });
+chrome.downloads.onChanged.addListener(item => {
+    if ((item.state || {}).current == 'complete' ||
+        (item.error || {}).current == 'USER_CANCELED' && !(item.canResume || {}).current) {
+        chrome.downloads.erase({ id: item.id });
+    }
+});

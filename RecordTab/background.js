@@ -16,24 +16,41 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
                 alert('不支持此操作');
                 return;
             }
-            const recorder = recordTabs[tab.id];
-            if (recorder) {
-                recorder.stop();
+            function stopStream() {
+                const stream = recordTabs[tab.id];
+                if (stream) {
+                    delete recordTabs[tab.id];
+                    updateRecordTabContextMenu();
+                    stream.getTracks().forEach(track => track.stop());
+                    return true;
+                }
+                return false;
+            }
+            if (stopStream()) {
                 return;
             }
-            chrome.tabCapture.capture({ video: true, audio: true }, stream => {
-                if (recordTabs.hasOwnProperty(tab.id)) {
+            chrome.tabCapture.capture({
+                video: true, audio: true, videoConstraints: {
+                    mandatory: {
+                        maxWidth: tab.width,
+                        maxHeight: tab.height
+                    }
+                }
+            }, stream => {
+                if (tab.id in recordTabs) {
                     stream.getTracks().forEach(track => track.stop());
                     return;
                 }
-                stream.getTracks().forEach(track =>
-                    track.addEventListener('ended', () =>
-                        stream.getTracks().forEach(track => track.stop())
-                    )
-                );
+                stream.getTracks().forEach(track => track.addEventListener('ended', stopStream));
+                recordTabs[tab.id] = stream;
+                updateRecordTabContextMenu();
+                if (Object.keys(recordTabs).length == 1) {
+                    chrome.alarms.create({ when: Date.now() + 1000 });
+                }
                 const recorder = new MediaRecorder(stream);
                 recorder.ondataavailable = e => {
                     if (e.data.size > 0) {
+                        recorder.stop();
                         const url = URL.createObjectURL(e.data);
                         const a = document.createElement('a');
                         a.style.display = 'none';
@@ -45,17 +62,13 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
                         URL.revokeObjectURL(url);
                     }
                 };
+                const timeSlice = 3600000;
                 recorder.onstop = () => {
-                    delete recordTabs[tab.id];
-                    stream.getTracks().forEach(track => track.stop());
-                    updateRecordTabContextMenu();
+                    if (tab.id in recordTabs) {
+                        recorder.start(timeSlice);
+                    }
                 };
-                recorder.start(1800000);
-                recordTabs[tab.id] = recorder;
-                updateRecordTabContextMenu();
-                if (Object.keys(recordTabs).length == 1) {
-                    chrome.alarms.create({ when: Date.now() + 1000 });
-                }
+                recorder.start(timeSlice);
             });
             break;
     }

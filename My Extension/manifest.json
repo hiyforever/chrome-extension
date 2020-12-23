@@ -159,6 +159,7 @@
         "<all_urls>",
         "clipboardRead",
         "contextMenus",
+        "downloads",
         "webNavigation"
     ],
     "icons": {
