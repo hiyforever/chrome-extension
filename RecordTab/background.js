@@ -4,9 +4,10 @@ const cancelRecordTabTitle = '结束录制标签页';
 const recordTabs = {};
 chrome.tabs.onActivated.addListener(updateRecordTabContextMenu);
 chrome.windows.onFocusChanged.addListener(updateRecordTabContextMenu);
-chrome.alarms.onAlarm.addListener(() => {
+chrome.alarms.onAlarm.addListener(() => { });
+chrome.runtime.onSuspend.addListener(() => {
     if (Object.keys(recordTabs).length > 0) {
-        chrome.alarms.create({ when: Date.now() + 1000 });
+        chrome.alarms.create({ when: Date.now() });
     }
 });
 chrome.contextMenus.onClicked.addListener((info, tab) => {
@@ -20,8 +21,8 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
                 const stream = recordTabs[tab.id];
                 if (stream) {
                     delete recordTabs[tab.id];
-                    updateRecordTabContextMenu();
                     stream.getTracks().forEach(track => track.stop());
+                    updateRecordTabContextMenu();
                     return true;
                 }
                 return false;
@@ -44,13 +45,12 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
                 stream.getTracks().forEach(track => track.addEventListener('ended', stopStream));
                 recordTabs[tab.id] = stream;
                 updateRecordTabContextMenu();
-                if (Object.keys(recordTabs).length == 1) {
-                    chrome.alarms.create({ when: Date.now() + 1000 });
-                }
                 const recorder = new MediaRecorder(stream);
                 recorder.ondataavailable = e => {
                     if (e.data.size > 0) {
-                        recorder.stop();
+                        try {
+                            recorder.stop();
+                        } catch (error) { }
                         const url = URL.createObjectURL(e.data);
                         const a = document.createElement('a');
                         a.style.display = 'none';
