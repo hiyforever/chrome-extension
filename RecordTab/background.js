@@ -50,14 +50,14 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
                 recorder.ondataavailable = e => {
                     if (e.data.size > 0) {
                         recordData.push(e.data);
-                        if (recordData.map(data => data.size).reduce((total, size) => total + size) >= 1073741824) {
-                            try {
+                        chrome.system.memory.getInfo(info => {
+                            if (recordData.map(data => data.size).reduce((total, size) => total + size) >= Math.max(info.availableCapacity - 512 * 1024 * 1024, 128 * 1024 * 1024)) {
                                 recorder.stop();
-                            } catch (error) { }
-                        }
+                            }
+                        });
                     }
                 };
-                const timeSlice = 60000;
+                const timeSlice = 600_000;
                 recorder.onstop = () => {
                     if (tab.id in recordTabs) {
                         recorder.start(timeSlice);
