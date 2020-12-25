@@ -45,13 +45,26 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
                 stream.getTracks().forEach(track => track.addEventListener('ended', stopStream));
                 recordTabs[tab.id] = stream;
                 updateRecordTabContextMenu();
+                let recordData = [];
                 const recorder = new MediaRecorder(stream);
                 recorder.ondataavailable = e => {
                     if (e.data.size > 0) {
-                        try {
-                            recorder.stop();
-                        } catch (error) { }
-                        const url = URL.createObjectURL(e.data);
+                        recordData.push(e.data);
+                        if (recordData.map(data => data.size).reduce((total, size) => total + size) >= 1073741824) {
+                            try {
+                                recorder.stop();
+                            } catch (error) { }
+                        }
+                    }
+                };
+                const timeSlice = 60000;
+                recorder.onstop = () => {
+                    if (tab.id in recordTabs) {
+                        recorder.start(timeSlice);
+                    }
+                    if (recordData.length > 0) {
+                        const url = URL.createObjectURL(new Blob(recordData));
+                        recordData = [];
                         const a = document.createElement('a');
                         a.style.display = 'none';
                         a.href = url;
@@ -60,12 +73,6 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
                         a.click();
                         a.remove();
                         URL.revokeObjectURL(url);
-                    }
-                };
-                const timeSlice = 3600000;
-                recorder.onstop = () => {
-                    if (tab.id in recordTabs) {
-                        recorder.start(timeSlice);
                     }
                 };
                 recorder.start(timeSlice);
