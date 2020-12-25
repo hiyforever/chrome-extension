@@ -51,7 +51,8 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
                     if (e.data.size > 0) {
                         recordData.push(e.data);
                         chrome.system.memory.getInfo(info => {
-                            if (recordData.map(data => data.size).reduce((total, size) => total + size) >= Math.max(info.availableCapacity - 512 * 1024 * 1024, 128 * 1024 * 1024)) {
+                            if (info.availableCapacity < 512 * 1024 * 1024 &&
+                                recordData.map(data => data.size).reduce((total, size) => total + size) >= 128 * 1024 * 1024) {
                                 recorder.stop();
                             }
                         });
