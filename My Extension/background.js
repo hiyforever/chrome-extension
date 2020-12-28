@@ -297,15 +297,22 @@ chrome.runtime.onMessage.addListener(message => {
                                     }
                                     const element = document.createElement('pre');
                                     element.innerText = unescape(target);
+                                    element.style.width = 'initial';
+                                    element.style.height = 'initial';
                                     element.style.maxWidth = '300px';
                                     element.style.maxHeight = '200px';
                                     element.style.overflow = 'auto';
+                                    element.style.textAlign = 'initial';
                                     element.style.position = 'absolute';
                                     element.style.left = x + 'px';
                                     element.style.top = y + 'px';
                                     element.style.zIndex = Number.MAX_SAFE_INTEGER;
-                                    element.style.border = 'none';
                                     element.style.backgroundColor = 'inherit';
+                                    element.style.border = '1px solid rgba(0,0,0,.2)';
+                                    element.style.boxShadow = '0 2px 4px rgba(0,0,0,.2)';
+                                    element.style.margin = 'initial';
+                                    element.style.padding = '5px 8px';
+                                    element.style.outline = 'none';
                                     element.setAttribute('tabindex', 0);
                                     element.onblur = () => element.remove();
                                     document.body.append(element);
