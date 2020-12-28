@@ -305,6 +305,7 @@ chrome.runtime.onMessage.addListener(message => {
                                     element.style.top = y + 'px';
                                     element.style.zIndex = Number.MAX_SAFE_INTEGER;
                                     element.style.border = 'none';
+                                    element.style.backgroundColor = 'inherit';
                                     element.setAttribute('tabindex', 0);
                                     element.onblur = () => element.remove();
                                     document.body.append(element);
