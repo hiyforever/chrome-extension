@@ -295,21 +295,18 @@ chrome.runtime.onMessage.addListener(message => {
                                     if (document.getSelection().toString() != unescape(source)) {
                                         return;
                                     }
-                                    const pre = document.createElement('pre');
-                                    pre.innerText = unescape(target);
-                                    pre.style.maxWidth = '300px';
-                                    pre.style.maxHeight = '200px';
-                                    pre.style.textAlign = 'initial';
-                                    pre.style.overflow = 'auto';
-                                    const element = document.createElement('button');
+                                    const element = document.createElement('pre');
+                                    element.innerText = unescape(target);
+                                    element.style.maxWidth = '300px';
+                                    element.style.maxHeight = '200px';
+                                    element.style.overflow = 'auto';
                                     element.style.position = 'absolute';
                                     element.style.left = x + 'px';
                                     element.style.top = y + 'px';
                                     element.style.zIndex = Number.MAX_SAFE_INTEGER;
                                     element.style.border = 'none';
-                                    element.style.outline = 'initial';
+                                    element.setAttribute('tabindex', 0);
                                     element.onblur = () => element.remove();
-                                    element.append(pre);
                                     document.body.append(element);
                                     element.focus();
                                 } + ')("' + escape(message.data) + '","' + escape(text) + '",' + message.x + ',' + message.y + ')'
