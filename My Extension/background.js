@@ -299,8 +299,8 @@ chrome.runtime.onMessage.addListener(message => {
                                     element.innerText = unescape(target);
                                     element.style.width = 'initial';
                                     element.style.height = 'initial';
-                                    element.style.maxWidth = '300px';
-                                    element.style.maxHeight = '200px';
+                                    element.style.maxWidth = '30em';
+                                    element.style.maxHeight = '20em';
                                     element.style.overflow = 'auto';
                                     element.style.textAlign = 'initial';
                                     element.style.position = 'absolute';
@@ -313,6 +313,8 @@ chrome.runtime.onMessage.addListener(message => {
                                     element.style.margin = 'initial';
                                     element.style.padding = '5px 8px';
                                     element.style.outline = 'none';
+                                    element.style.font = 'initial';
+                                    element.style.whiteSpace = 'pre-wrap';
                                     element.setAttribute('tabindex', 0);
                                     element.onblur = () => element.remove();
                                     document.body.append(element);
