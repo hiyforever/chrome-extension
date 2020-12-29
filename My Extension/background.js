@@ -296,7 +296,7 @@ chrome.runtime.onMessage.addListener(message => {
                                         return;
                                     }
                                     const element = document.createElement('pre');
-                                    element.innerText = unescape(target);
+                                    element.innerText = unescape(target).trim();
                                     element.style.width = 'initial';
                                     element.style.height = 'initial';
                                     element.style.maxWidth = '30em';
