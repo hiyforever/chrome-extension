@@ -291,6 +291,7 @@ chrome.runtime.onMessage.addListener(message => {
                                 return;
                             }
                             chrome.tabs.executeScript({
+                                allFrames: true,
                                 code: '(' + function (source, target, x, y) {
                                     if (document.getSelection().toString() != unescape(source)) {
                                         return;
@@ -307,7 +308,7 @@ chrome.runtime.onMessage.addListener(message => {
                                     element.style.left = x + 'px';
                                     element.style.top = y + 'px';
                                     element.style.zIndex = Number.MAX_SAFE_INTEGER;
-                                    element.style.backgroundColor = 'inherit';
+                                    element.style.backgroundColor = 'rgb(255, 255, 255)';
                                     element.style.border = '1px solid rgba(0,0,0,.2)';
                                     element.style.boxShadow = '0 2px 4px rgba(0,0,0,.2)';
                                     element.style.margin = 'initial';
