@@ -33,12 +33,17 @@ self.addEventListener('contextmenu', e => {
     document.querySelectorAll('[' + tag + ']').forEach(e => e.removeAttribute(tag))
     e.target.setAttribute(tag, true)
 });
+const modified = new Set();
 self.addEventListener('DOMSubtreeModified', e => {
     if (e.target.querySelectorAll) {
-        e.target.querySelectorAll('*').forEach(e => {
-            if ((e.style.backgroundColor || getComputedStyle(e).backgroundColor) == 'rgb(255, 255, 255)') {
-                e.style.backgroundColor = '#e0ce9e';
-            }
-        });
+        modified.add(e.target);
+        setTimeout(() => {
+            modified.forEach(e => e.querySelectorAll('*').forEach(e => {
+                if (getComputedStyle(e).backgroundColor == 'rgb(255, 255, 255)') {
+                    e.style.backgroundColor = '#e0ce9e';
+                }
+            }));
+            modified.clear();
+        }, 0);
     }
 });
