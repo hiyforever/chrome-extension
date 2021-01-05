@@ -18,7 +18,7 @@ self.addEventListener('mouseup', e => {
     }
     const selection = document.getSelection();
     const text = selection.toString();
-    if (selection == lastSelection && !selection.isCollapsed && text) {
+    if (selection == lastSelection && !selection.isCollapsed && !selection.anchorNode.parentNode.isContentEditable && text) {
         lastSelection = null;
         chrome.runtime.sendMessage({
             event: 'selectionchange',
