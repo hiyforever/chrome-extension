@@ -7,7 +7,7 @@ chrome.windows.onFocusChanged.addListener(updateRecordTabContextMenu);
 chrome.alarms.onAlarm.addListener(() => { });
 chrome.runtime.onSuspend.addListener(() => {
     if (Object.keys(recordTabs).length > 0) {
-        chrome.alarms.create({ when: Date.now() });
+        chrome.alarms.create({ when: 0 });
     }
 });
 chrome.contextMenus.onClicked.addListener((info, tab) => {
@@ -52,7 +52,7 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
                         recordData.push(e.data);
                         chrome.system.memory.getInfo(info => {
                             const limit = 1024 * 1024 * 1024;
-                            const size = recordData.map(data => data.size).reduce((total, size) => total + size);
+                            const size = recordData.map(data => data.size).reduce((total, size) => total + size, 0);
                             if (size >= limit || info.availableCapacity < limit && size >= limit / 8) {
                                 recorder.stop();
                             }
