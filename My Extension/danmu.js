@@ -34,8 +34,7 @@ chrome.webNavigation.onDOMContentLoaded.addListener(details => {
                         if (!video || video.parentElement.classList.contains('danmuVideo')) {
                             return;
                         }
-                        addDanmus(video, allDanmus)
-                        alert(location.href + '\n' + allDanmus.length);
+                        addDanmus(video, allDanmus);
                         function addDanmus(video, danmus) {
                             if (!this.style) {
                                 this.style = document.createElement('style');
@@ -178,5 +177,6 @@ chrome.webNavigation.onDOMContentLoaded.addListener(details => {
         { hostEquals: 'www.bimiacg.com', pathPrefix: '/bangumi' },
         { hostEquals: 'bimiacg.com', pathPrefix: '/bangumi' },
         { hostEquals: 'www.tucao.one', pathPrefix: '/play' },
+        { hostEquals: 'www.zkk7.com', pathPrefix: '/play' },
     ]
 });

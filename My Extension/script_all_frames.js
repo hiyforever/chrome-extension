@@ -8,6 +8,18 @@ self.addEventListener('keydown', e => {
         }
     }
 });
+self.addEventListener('mouseup', e => {
+    switch (e.button) {
+        case 3:
+        case 4:
+            const video = document.getElementsByTagName('video')[0];
+            if (video) {
+                video.currentTime += 35 - e.button * 10;
+                e.preventDefault();
+            }
+            break;
+    }
+});
 let lastSelection;
 document.addEventListener('selectionchange', () => {
     lastSelection = document.getSelection();
