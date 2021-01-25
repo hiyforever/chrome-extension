@@ -317,6 +317,7 @@ chrome.runtime.onMessage.addListener(message => {
                                     element.style.font = 'initial';
                                     element.style.color = 'initial';
                                     element.style.whiteSpace = 'pre-wrap';
+                                    element.style.overflowWrap = 'anywhere';
                                     element.setAttribute('tabindex', 0);
                                     element.onblur = () => element.remove();
                                     document.body.append(element);
