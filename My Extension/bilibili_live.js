@@ -1,3 +1,14 @@
+for (let i = 0; i < 2; i++) {
+    const interval = setInterval(() => {
+        const iframe = document.querySelector('.live-non-revenue-player iframe');
+        if (iframe && iframe.style.position != 'fixed') {
+            iframe.style.position = 'fixed';
+            iframe.style.left = '0px';
+            iframe.style.top = '0px';
+            clearInterval(interval);
+        }
+    }, 0);
+}
 if (document.querySelector('.live-room-app')) {
     for (let i = 0; i < 2; i++) {
         const interval = setInterval(() => {
@@ -8,7 +19,6 @@ if (document.querySelector('.live-room-app')) {
         }, 0);
     }
     const controller = document.querySelector('.bilibili-live-player-video-controller');
-    setInterval(() => controller.click(), 10000);
     const fixFullPage = e => {
         const fullpage = document.querySelector('#player_fullpage');
         if (fullpage) {

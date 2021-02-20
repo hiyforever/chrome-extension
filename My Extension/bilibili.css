@@ -2,3 +2,11 @@
     font-family: Lolita !important;
     text-shadow: 1px 1px 1px black !important;
 }
+
+#bilibiliPlayer .bilibili-player-video-popup-guide-attention {
+    visibility: hidden;
+}
+
+.bilibili-player-dm-tip-wrap {
+    pointer-events: none;
+}

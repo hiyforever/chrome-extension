@@ -18,6 +18,8 @@ self.addEventListener('DOMNodeInserted', e => {
                 player.scrollIntoView({ block: 'center' });
             }
         }, 0);
+    } else if (e.target.classList && e.target.classList.contains('bilibili-player-electric-panel')) {
+        setTimeout(() => document.querySelector('.bilibili-player-electric-panel-jump-content').click(), 0);
     }
 });
 localStorage.removeItem('search_history');

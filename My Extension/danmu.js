@@ -177,6 +177,6 @@ chrome.webNavigation.onDOMContentLoaded.addListener(details => {
         { hostEquals: 'www.bimiacg.com', pathPrefix: '/bangumi' },
         { hostEquals: 'bimiacg.com', pathPrefix: '/bangumi' },
         { hostEquals: 'www.tucao.one', pathPrefix: '/play' },
-        { hostEquals: 'www.zkk7.com', pathPrefix: '/play' },
+        { hostEquals: 'www.yhdmk.com', pathPrefix: '/play' },
     ]
 });

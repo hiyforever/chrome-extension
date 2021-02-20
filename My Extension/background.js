@@ -32,6 +32,11 @@ chrome.tabs.onRemoved.addListener((tabId, info) => {
     }
 });
 chrome.windows.onRemoved.addListener(windowId => delete visitTabs[windowId]);
+chrome.windows.onCreated.addListener(window => chrome.windows.getAll({ populate: true }, windows =>
+    windows.filter(win => win.id != window.id && win.incognito == window.incognito)
+        .filter(window => window.tabs.every(tab => !tab.url))
+        .forEach(window => chrome.windows.remove(window.id))
+));
 const copyLinkTextContextMenuId = 'copyLinkText';
 chrome.contextMenus.onClicked.addListener((info, tab) => {
     switch (info.menuItemId) {

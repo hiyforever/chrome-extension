@@ -8,15 +8,21 @@ self.addEventListener('keydown', e => {
         }
     }
 });
+self.addEventListener('mousemove', e => {
+    const element = e.target;
+    if (element.tagName == 'INPUT' && element.type == 'password') {
+        element.title = element.value;
+        setTimeout(() => element.removeAttribute('title'), 0);
+    }
+});
 self.addEventListener('mouseup', e => {
     switch (e.button) {
         case 3:
         case 4:
-            const video = document.getElementsByTagName('video')[0];
-            if (video) {
+            document.querySelectorAll('video').forEach(video => {
                 video.currentTime += 35 - e.button * 10;
                 e.preventDefault();
-            }
+            });
             break;
     }
 });
