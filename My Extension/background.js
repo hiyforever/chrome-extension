@@ -1,37 +1,10 @@
-const visitTabs = {};
 chrome.commands.onCommand.addListener((command, tab) => {
     switch (command) {
         case 'duplicate-tab':
             chrome.tabs.duplicate(tab.id);
             break;
-        case 'switch-tab':
-            const tabs = Array.from(visitTabs[tab.windowId] || []);
-            const preVisitTab = tabs[tabs.length - 2];
-            if (preVisitTab) {
-                chrome.tabs.update(preVisitTab, { active: true });
-            }
-            break;
     }
 });
-chrome.tabs.onActivated.addListener(info => {
-    const tabId = info.tabId;
-    if (tabId < 0) {
-        return;
-    }
-    let tabs = visitTabs[info.windowId];
-    if (!tabs) {
-        visitTabs[info.windowId] = tabs = new Set();
-    }
-    tabs.delete(tabId);
-    tabs.add(info.tabId);
-});
-chrome.tabs.onRemoved.addListener((tabId, info) => {
-    const tabs = visitTabs[info.windowId];
-    if (tabs) {
-        tabs.delete(tabId);
-    }
-});
-chrome.windows.onRemoved.addListener(windowId => delete visitTabs[windowId]);
 chrome.windows.onCreated.addListener(window => chrome.windows.getAll({ populate: true }, windows =>
     windows.filter(win => win.id != window.id && win.incognito == window.incognito)
         .filter(window => window.tabs.every(tab => !tab.url))
