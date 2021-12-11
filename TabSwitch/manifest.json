@@ -1,0 +1,21 @@
+{
+    "background": {
+        "scripts": [
+            "background.js"
+        ]
+    },
+    "commands": {
+        "switch-tab": {
+            "suggested_key": {
+                "default": "Ctrl+S"
+            },
+            "description": "切换标签页"
+        }
+    },
+    "icons": {
+        "48": "icon.png"
+    },
+    "name": "TabSwitch",
+    "version": "1.0",
+    "manifest_version": 2
+}
