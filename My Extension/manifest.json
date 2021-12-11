@@ -144,12 +144,6 @@
                 "default": "Ctrl+Y"
             },
             "description": "复制标签页"
-        },
-        "switch-tab": {
-            "suggested_key": {
-                "default": "Ctrl+S"
-            },
-            "description": "切换标签页"
         }
     },
     "chrome_url_overrides": {
@@ -163,7 +157,7 @@
         "webNavigation"
     ],
     "icons": {
-        "16": "icon.png"
+        "48": "icon.png"
     },
     "name": "My Extension",
     "version": "1.0",
