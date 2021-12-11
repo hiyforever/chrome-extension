@@ -19,10 +19,19 @@ self.addEventListener('mouseup', e => {
     switch (e.button) {
         case 3:
         case 4:
-            document.querySelectorAll('video').forEach(video => {
-                video.currentTime += 35 - e.button * 10;
-                e.preventDefault();
-            });
+            const videos = document.querySelectorAll('video');
+            if (videos.length > 0) {
+                videos.forEach(video => {
+                    video.currentTime += e.button * 10 - 35;
+                    e.preventDefault();
+                });
+            } else if (e.button == 4) {
+                document.querySelectorAll('button, a').forEach(e => {
+                    if (['下一页', '›', '»', '下一页>', '下一页›', '次›', 'Next'].includes(e.textContent.replaceAll(/\s/g, ''))) {
+                        e.click();
+                    }
+                });
+            }
             break;
     }
 });
@@ -38,11 +47,16 @@ self.addEventListener('mouseup', e => {
     const text = selection.toString();
     if (selection == lastSelection && !selection.isCollapsed && !selection.anchorNode.parentNode.isContentEditable && text) {
         lastSelection = null;
-        chrome.runtime.sendMessage({
-            event: 'selectionchange',
-            data: text,
-            x: e.pageX,
-            y: e.pageY
+        chrome.i18n.detectLanguage(text, info => {
+            if (info.languages.length > 1 ||
+                info.languages.length == 1 && info.languages[0].language != 'zh') {
+                chrome.runtime.sendMessage({
+                    event: 'selectionchange',
+                    data: text,
+                    x: e.pageX,
+                    y: e.pageY
+                });
+            }
         });
     }
 });

@@ -1,12 +1,15 @@
+* {
+    font-family: inherit !important;
+}
+
 .bilibili-danmaku {
-    font-family: Lolita !important;
     text-shadow: 1px 1px 1px black !important;
 }
 
-#bilibiliPlayer .bilibili-player-video-popup-guide-attention {
+.bilibili-player-dm-tip-wrap {
     visibility: hidden;
 }
 
-.bilibili-player-dm-tip-wrap {
-    pointer-events: none;
+.bilibili-player-video-popup, .bpx-player-dialog-wrap {
+    display: none !important;
 }

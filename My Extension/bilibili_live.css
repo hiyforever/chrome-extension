@@ -1,3 +1,7 @@
 #my-dear-haruna-vm {
     visibility: hidden;
 }
+
+.live-room-app {
+    font-family: initial !important;
+}

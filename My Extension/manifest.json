@@ -90,7 +90,8 @@
                 "bimibimi.css"
             ],
             "matches": [
-                "*://*.bimiacg.com/**"
+                "*://*.bimiacg.net/**",
+                "*://*.bimiacg2.net/**"
             ],
             "run_at": "document_start"
         },
@@ -99,7 +100,17 @@
                 "bimibimi.js"
             ],
             "matches": [
-                "*://*.bimiacg.com/**"
+                "*://*.bimiacg.net/**",
+                "*://*.bimiacg2.net/**"
+            ],
+            "run_at": "document_end"
+        },
+        {
+            "js": [
+                "zhihu.js"
+            ],
+            "matches": [
+                "*://*.zhihu.com/**"
             ],
             "run_at": "document_end"
         },
@@ -133,8 +144,7 @@
     ],
     "background": {
         "scripts": [
-            "background.js",
-            "danmu.js"
+            "background.js"
         ],
         "persistent": false
     },

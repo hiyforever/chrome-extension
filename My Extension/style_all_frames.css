@@ -1,5 +1,9 @@
 html, body {
-    font-family: Lolita !important;
+    font-family: inherit !important;
+}
+
+* {
+    font-family: initial;
 }
 
 ::-webkit-scrollbar {

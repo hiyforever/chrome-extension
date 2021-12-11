@@ -1,15 +1,22 @@
 const recordTabContextMenuId = 'recordTab';
 const recordTabTitle = '录制标签页';
 const cancelRecordTabTitle = '结束录制标签页';
-const recordTabs = {};
-chrome.tabs.onActivated.addListener(updateRecordTabContextMenu);
-chrome.windows.onFocusChanged.addListener(updateRecordTabContextMenu);
-chrome.alarms.onAlarm.addListener(() => { });
-chrome.runtime.onSuspend.addListener(() => {
+const recordTabs = new Proxy({}, {
+    set: (target, key, value, receiver) => {
+        const result = Reflect.set(target, key, value, receiver);
+        if (Object.keys(recordTabs).length == 1) {
+            chrome.alarms.create({ when: 0 });
+        }
+        return result;
+    }
+});
+chrome.alarms.onAlarm.addListener(() => {
     if (Object.keys(recordTabs).length > 0) {
         chrome.alarms.create({ when: 0 });
     }
 });
+chrome.tabs.onActivated.addListener(updateRecordTabContextMenu);
+chrome.windows.onFocusChanged.addListener(updateRecordTabContextMenu);
 chrome.contextMenus.onClicked.addListener((info, tab) => {
     switch (info.menuItemId) {
         case recordTabContextMenuId:
@@ -17,7 +24,7 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
                 alert('不支持此操作');
                 return;
             }
-            function stopStream() {
+            const stopStream = () => {
                 const stream = recordTabs[tab.id];
                 if (stream) {
                     delete recordTabs[tab.id];
