@@ -12,7 +12,7 @@
         "alarms"
     ],
     "icons": {
-        "16": "icon.png"
+        "48": "icon.png"
     },
     "name": "Record Tab",
     "version": "1.0",
