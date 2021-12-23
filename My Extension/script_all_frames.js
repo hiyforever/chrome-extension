@@ -26,8 +26,9 @@ self.addEventListener('mouseup', e => {
                     e.preventDefault();
                 });
             } else if (e.button == 4) {
-                document.querySelectorAll('button, a').forEach(e => {
-                    if (['下一页', '›', '»', '下一页>', '下一页›', '次›', 'Next'].includes(e.textContent.replaceAll(/\s/g, ''))) {
+                const matchNextPage = text => text.trim() != '' && text.replaceAll(/下一页|›|»|>|下页|次|Next/g, '').trim() == '';
+                document.querySelectorAll('button, a, li').forEach(e => {
+                    if (matchNextPage(e.textContent) || matchNextPage(e.title)) {
                         e.click();
                     }
                 });
