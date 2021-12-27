@@ -15,23 +15,90 @@ self.addEventListener('mousemove', e => {
         setTimeout(() => element.removeAttribute('title'), 0);
     }
 });
+const matchPatternPage = (text, pattern) => text.trim() != '' && text.replaceAll(pattern, '').trim() == '';
+const matchPrevPage = text => matchPatternPage(text, /上一页|<|上页|Prev/g);
+const matchNextPage = text => matchPatternPage(text, /下一页|›|»|>|下页|次|Next/g);
+const matchIcons = [{
+    classPrefix: 'ICN_type-',
+    code: 0xe6a6,
+}, {
+    classPrefix: 'el-icon-arrow-',
+    code: 0xe6df,
+}, {
+    classPrefix: 'fa-chevron-',
+    code: 0xf053,
+}];
+const mouseUpMatchActions = [{
+    isMatch: (element, button) => element.tagName.includes('VIDEO'),
+    action: (element, button) => {
+        element.currentTime += button * 10 - 35;
+        if (element.currentTime || element.tagName == 'VIDEO') {
+            return;
+        }
+        const script = document.createElement('script');
+        script.textContent = '(' + function (tagName, button) {
+            document.querySelector(tagName).currentTime += button * 10 - 35;
+        } + ')("' + element.tagName + '",' + button + ')';
+        document.firstElementChild.appendChild(script);
+        script.remove();
+    },
+}, {
+    isMatch: function (element, button) {
+        if (!['BUTTON', 'A', 'LI'].includes(element.tagName)) {
+            return false;
+        }
+        let matchPage, matchText, matchOffset;
+        switch (button) {
+            case 3:
+                matchPage = matchPrevPage;
+                matchText = 'left';
+                matchOffset = 0;
+                break;
+            case 4:
+                matchPage = matchNextPage;
+                matchText = 'right';
+                matchOffset = 1;
+                break;
+            default:
+                return false;
+        }
+        if (matchPage(element.textContent) || matchPage(element.title)) {
+            return true;
+        }
+        if (element.children.length == 1 && element.firstChild.tagName == 'I') {
+            for (const icon of matchIcons) {
+                if (element.firstChild.className?.includes(icon.classPrefix + matchText) &&
+                    getComputedStyle(element.firstChild, ':before').content == unescape('"%u' + (icon.code + matchOffset).toString(16) + '"')) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    },
+    action: (element, button) => element.click(),
+}];
 self.addEventListener('mouseup', e => {
     switch (e.button) {
         case 3:
         case 4:
-            const videos = document.querySelectorAll('video');
-            if (videos.length > 0) {
-                videos.forEach(video => {
-                    video.currentTime += e.button * 10 - 35;
-                    e.preventDefault();
-                });
-            } else if (e.button == 4) {
-                const matchNextPage = text => text.trim() != '' && text.replaceAll(/下一页|›|»|>|下页|次|Next/g, '').trim() == '';
-                document.querySelectorAll('button, a, li').forEach(e => {
-                    if (matchNextPage(e.textContent) || matchNextPage(e.title)) {
-                        e.click();
+            const items = Array.from(document.querySelectorAll('*')).map(element => {
+                for (const i in mouseUpMatchActions) {
+                    if (mouseUpMatchActions[i].isMatch(element, e.button)) {
+                        return { id: i, element: element };
                     }
-                });
+                }
+            }).filter(item => item).sort((item1, item2) => item1.id - item2.id);
+            let target = e.target;
+            while (target) {
+                for (const item of items) {
+                    if (target.contains(item.element)) {
+                        mouseUpMatchActions[item.id].action(item.element, e.button);
+                        e.preventDefault();
+                        target = undefined;
+                        break;
+                    }
+                }
+                target = target?.parentNode;
             }
             break;
     }

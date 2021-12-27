@@ -30,19 +30,3 @@ self.addEventListener('DOMNodeInserted', e => {
     }
 });
 localStorage.removeItem('search_history');
-const script = document.createElement('script');
-script.textContent = '(' + function () {
-    self.addEventListener('mouseup', e => {
-        switch (e.button) {
-            case 3:
-            case 4:
-                document.querySelectorAll('bwp-video').forEach(video => {
-                    video.currentTime += e.button * 10 - 35;
-                    e.preventDefault();
-                });
-                break;
-        }
-    });
-} + ')()';
-document.firstElementChild.appendChild(script);
-script.remove();
