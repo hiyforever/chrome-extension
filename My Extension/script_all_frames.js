@@ -44,7 +44,26 @@ const mouseUpMatchActions = [{
     },
 }, {
     isMatch: function (element, button) {
-        if (!['BUTTON', 'A', 'LI'].includes(element.tagName)) {
+        if (!['BUTTON', 'A'].includes(element.tagName)) {
+            return false;
+        }
+        let matchPage;
+        switch (button) {
+            case 3:
+                matchPage = matchPrevPage;
+                break;
+            case 4:
+                matchPage = matchNextPage;
+                break;
+            default:
+                return false;
+        }
+        return matchPage(element.textContent) || matchPage(element.title);
+    },
+    action: (element, button) => element.click(),
+}, {
+    isMatch: function (element, button) {
+        if (element.tagName != 'LI') {
             return false;
         }
         let matchPage, matchText, matchOffset;
