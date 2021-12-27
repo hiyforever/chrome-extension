@@ -16,7 +16,7 @@ self.addEventListener('mousemove', e => {
     }
 });
 const matchPatternPage = (text, pattern) => text.trim() != '' && text.replaceAll(pattern, '').trim() == '';
-const matchPrevPage = text => matchPatternPage(text, /上一页|<|上页|Prev/g);
+const matchPrevPage = text => matchPatternPage(text, /上一页|<|上页|Previous|Prev/g);
 const matchNextPage = text => matchPatternPage(text, /下一页|›|»|>|下页|次|Next/g);
 const matchIcons = [{
     classPrefix: 'ICN_type-',
