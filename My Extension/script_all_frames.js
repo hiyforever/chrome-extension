@@ -81,6 +81,12 @@ self.addEventListener('mouseup', e => {
             const items = Array.from(document.querySelectorAll('*')).map(element => {
                 for (const i in matchActions) {
                     if (matchActions[i].isMatch(element, e.button)) {
+                        for (let current = element; current; current = current.parentElement) {
+                            const style = getComputedStyle(current);
+                            if (style.cursor == 'not-allowed' || style.display == 'none') {
+                                return;
+                            }
+                        }
                         return { id: i, element: element };
                     }
                 }
@@ -89,8 +95,7 @@ self.addEventListener('mouseup', e => {
             if (items.length == 1) {
                 actionItem = items[0];
             } else if (items.length > 1) {
-                let target = e.target;
-                while (target) {
+                for (let target = e.target; target; target = target?.parentNode) {
                     for (const item of items) {
                         if (target.contains(item.element)) {
                             actionItem = item;
@@ -98,7 +103,6 @@ self.addEventListener('mouseup', e => {
                             break;
                         }
                     }
-                    target = target?.parentNode;
                 }
             }
             if (actionItem) {
