@@ -15,44 +15,23 @@ self.addEventListener('mousemove', e => {
         setTimeout(() => element.removeAttribute('title'), 0);
     }
 });
-const matchPatternPage = (text, pattern) => text.trim() != '' && text.replaceAll(pattern, '').trim() == '';
-const matchPrevPage = text => matchPatternPage(text, /上一页|‹|«|<|上页|前|Previous|Prev/g);
-const matchNextPage = text => matchPatternPage(text, /下一页|›|»|>|下页|次|Next/g);
 const isMatchPatternPage = (element, button, tagNames) => {
     if (!tagNames.includes(element.tagName)) {
         return false;
     }
-    let matchPage, matchText, matchIndex;
+    let matchPattern;
     switch (button) {
-        case 3: matchPage = matchPrevPage;
-            matchText = 'left';
-            matchIndex = 0;
+        case 3:
+            matchPattern = /上一页|‹|«|<|上页|前|Previous|Prev/g;
             break;
-        case 4: matchPage = matchNextPage;
-            matchText = 'right';
-            matchIndex = 1;
+        case 4:
+            matchPattern = /下一页|›|»|>|下页|次|Next/g;
             break;
         default:
             return false;
     }
-    if (matchPage(element.textContent) || matchPage(element.title)) {
-        return true;
-    }
-    if (element.children.length == 1 && element.firstChild.tagName == 'I') {
-        for (const icon of matchIcons) {
-            if (element.firstChild.className?.includes(icon.classPrefix + matchText) &&
-                getComputedStyle(element.firstChild, ':before').content == '"' + icon.codes[matchIndex] + '"') {
-                return true;
-            }
-        }
-    }
-    return false;
+    return [element.textContent, element.title].some(text => text.trim() != '' && text.replaceAll(matchPattern, '').trim() == '');
 };
-const matchIcons = [
-    { classPrefix: 'ICN_type-', codes: ['\ue6a9', '\ue6a7'] },
-    { classPrefix: 'el-icon-arrow-', codes: ['\ue6de', '\ue6e0'] },
-    { classPrefix: 'fa-chevron-', codes: ['\uf053', '\uf054'] }
-];
 const matchActions = [{
     isMatch: (element, button) => element.tagName.includes('VIDEO'),
     action: (element, button) => {
@@ -72,6 +51,26 @@ const matchActions = [{
     action: (element, button) => element.click()
 }, {
     isMatch: (element, button) => isMatchPatternPage(element, button, ['LI']),
+    action: (element, button) => element.click()
+}, {
+    isMatch: (element, button) => {
+        const child = element.firstElementChild;
+        if (element.children.length != 1 || child.tagName != 'I' || !['BUTTON', 'A', "LI"].includes(element.tagName)) {
+            return false;
+        }
+        let matchText;
+        switch (button) {
+            case 3:
+                matchText = '-left';
+                break;
+            case 4:
+                matchText = '-right';
+                break;
+            default:
+                return false;
+        }
+        return child.className?.includes(matchText) && getComputedStyle(child, ':before').content?.match(/"[\u0000-\uffff]"/);
+    },
     action: (element, button) => element.click()
 }];
 self.addEventListener('mouseup', e => {
