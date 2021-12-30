@@ -154,18 +154,6 @@
                 "default": "Ctrl+Y"
             },
             "description": "复制标签页"
-        },
-        "disable-save": {
-            "suggested_key": {
-                "default": "Ctrl+S"
-            },
-            "description": "屏蔽保存网页"
-        },
-        "disable-favorite": {
-            "suggested_key": {
-                "default": "Ctrl+D"
-            },
-            "description": "屏蔽收藏网页"
         }
     },
     "chrome_url_overrides": {
