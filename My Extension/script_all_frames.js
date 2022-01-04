@@ -22,10 +22,10 @@ const isMatchPatternPage = (element, button, tagNames) => {
     let matchPattern;
     switch (button) {
         case 3:
-            matchPattern = /上一页|‹|«|<|上页|前|Previous|Prev/g;
+            matchPattern = /上一页|‹|«|<|上页|前|Previous Page|Prev Page|Previous|Prev/g;
             break;
         case 4:
-            matchPattern = /下一页|›|»|>|下页|次|Next/g;
+            matchPattern = /下一页|›|»|>|下页|次|Next Page|Next/g;
             break;
         default:
             return false;
