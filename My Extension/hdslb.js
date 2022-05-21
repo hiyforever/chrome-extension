@@ -1,0 +1,1 @@
+localStorage.removeItem('search_history:search_history');

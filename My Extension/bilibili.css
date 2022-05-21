@@ -1,5 +1,21 @@
 * {
-    font-family: inherit !important;
+    font-family: Lolita !important;
+}
+
+p, h3 {
+    text-indent: 0 !important;
+}
+
+.video-info .video-title .tr-fix {
+    margin-left: 0 !important;
+}
+
+.fixed-header .bili-header__bar {
+    position: absolute !important;
+}
+
+.bilibili-danmaku {
+    font-weight: inherit !important;
 }
 
 .bilibili-danmaku {
@@ -8,6 +24,10 @@
 
 .bilibili-player-dm-tip-wrap {
     visibility: hidden;
+}
+
+#bannerAd, #slide_ad, .ad-report, .eva-extension-area, .eva-banner, .battle-area, #reco_list .rec-list>div:nth-child(1) {
+    display: none !important;
 }
 
 .bilibili-player-video-popup, .bpx-player-dialog-wrap {

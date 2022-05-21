@@ -6,6 +6,10 @@ html, body {
     font-family: initial;
 }
 
+.ace_editor * {
+    font-family: inherit;
+}
+
 ::-webkit-scrollbar {
     width: 8px;
     height: 1em;

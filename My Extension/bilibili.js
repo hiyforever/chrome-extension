@@ -25,8 +25,17 @@ self.addEventListener('DOMNodeInserted', e => {
                 document.querySelector('#bilibiliPlayer, #bilibili-player').scrollIntoView({ block: 'center' });
             }
         }, 0);
-    } else if (e.target.classList && e.target.classList.contains('bilibili-player-electric-panel')) {
-        setTimeout(() => document.querySelector('.bilibili-player-electric-panel-jump-content').click(), 0);
     }
 });
-localStorage.removeItem('search_history');
+setInterval(() => {
+    if (document.querySelector('.bilibili-player-electric-panel')?.style.display == 'block') {
+        document.querySelector('.bilibili-player-electric-panel-jump-content')?.click();
+    }
+}, 0);
+if (location.host == 'search.bilibili.com') {
+    try {
+        matchActions.push(matchActions.shift());
+    } catch (error) {
+        console.log(error);
+    }
+}

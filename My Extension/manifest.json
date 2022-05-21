@@ -34,6 +34,16 @@
         },
         {
             "js": [
+                "hdslb.js"
+            ],
+            "matches": [
+                "*://*.hdslb.com/**"
+            ],
+            "all_frames": true,
+            "run_at": "document_start"
+        },
+        {
+            "js": [
                 "bilibili.js"
             ],
             "css": [
@@ -90,8 +100,7 @@
                 "bimibimi.css"
             ],
             "matches": [
-                "*://*.bimiacg.net/**",
-                "*://*.bimiacg2.net/**"
+                "*://*.bimiacg4.net/**"
             ],
             "run_at": "document_start"
         },
@@ -100,8 +109,7 @@
                 "bimibimi.js"
             ],
             "matches": [
-                "*://*.bimiacg.net/**",
-                "*://*.bimiacg2.net/**"
+                "*://*.bimiacg4.net/**"
             ],
             "run_at": "document_end"
         },

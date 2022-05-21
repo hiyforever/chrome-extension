@@ -138,9 +138,19 @@ self.addEventListener('mouseup', e => {
 });
 self.addEventListener('contextmenu', e => {
     const tag = 'data-context-menu-target';
-    document.querySelectorAll('[' + tag + ']').forEach(e => e.removeAttribute(tag))
-    e.target.setAttribute(tag, true)
+    document.querySelectorAll('[' + tag + ']').forEach(e => e.removeAttribute(tag));
+    e.target.setAttribute(tag, true);
 });
+const updateContextMenu = e => {
+    if (e.button == 2) {
+        chrome.runtime.sendMessage({
+            event: 'contextmenu',
+            data: e.target.innerText
+        });
+    }
+};
+self.addEventListener('mousedown', updateContextMenu);
+self.addEventListener('mouseup', updateContextMenu);
 const modified = new Set();
 self.addEventListener('DOMSubtreeModified', e => {
     if (e.target.querySelectorAll) {

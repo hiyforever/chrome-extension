@@ -18,51 +18,58 @@ chrome.windows.onCreated.addListener(window => chrome.windows.getAll({ populate:
         removing = false;
     }
 }));
-const copyLinkTextContextMenuId = 'copyLinkText';
+const copyTextContextMenuIds = [
+    { id: 'copyLinkText', title: '复制链接文字', contexts: ['link'], documentUrlPatterns: ['*://*/*'] },
+    { id: 'copyPageText', title: '复制文字', contexts: ['page'], documentUrlPatterns: ['*://*/*'] }
+];
 chrome.contextMenus.onClicked.addListener((info, tab) => {
-    switch (info.menuItemId) {
-        case copyLinkTextContextMenuId:
-            if (tab.id < 0) {
-                alert('不支持此操作');
-                return;
-            }
-            chrome.tabs.executeScript(tab.id, {
-                code: '(' + function () {
-                    const tag = 'data-context-menu-target';
-                    const target = document.querySelector('[' + tag + ']');
-                    target.removeAttribute(tag);
-                    const text = target.innerText;
-                    if (navigator.clipboard) {
-                        navigator.clipboard.writeText(text).then(null, err => alert(err));
-                    } else {
-                        function oncopy(evt) {
-                            evt.preventDefault();
-                            evt.clipboardData.setData('text/plain', text);
-                        }
-                        document.addEventListener('copy', oncopy);
-                        document.execCommand('copy');
-                        document.removeEventListener('copy', oncopy);
+    if (copyTextContextMenuIds.some(item => item.id == info.menuItemId)) {
+        if (tab.id < 0) {
+            alert('不支持此操作');
+            return;
+        }
+        chrome.tabs.executeScript(tab.id, {
+            code: '(' + function () {
+                const tag = 'data-context-menu-target';
+                const target = document.querySelector('[' + tag + ']');
+                target.removeAttribute(tag);
+                const text = target.innerText.trim();
+                if (navigator.clipboard) {
+                    navigator.clipboard.writeText(text).then(null, err => alert(err));
+                } else {
+                    function oncopy(evt) {
+                        evt.preventDefault();
+                        evt.clipboardData.setData('text/plain', text);
                     }
-                } + ')()'
-            });
-            break;
+                    document.addEventListener('copy', oncopy);
+                    document.execCommand('copy');
+                    document.removeEventListener('copy', oncopy);
+                }
+            } + ')()'
+        });
     }
 });
-chrome.runtime.onInstalled.addListener(() => {
-    chrome.contextMenus.create({
-        id: copyLinkTextContextMenuId,
-        title: '复制链接文字',
-        contexts: ['link']
-    });
-});
+chrome.runtime.onInstalled.addListener(() => copyTextContextMenuIds.forEach(e => chrome.contextMenus.create(e)));
 chrome.downloads.onChanged.addListener(item => {
-    if ((item.state || {}).current == 'complete' ||
-        (item.error || {}).current == 'USER_CANCELED' && !(item.canResume || {}).current) {
-        chrome.downloads.erase({ id: item.id });
+    const clean = () => chrome.downloads.erase({ id: item.id });
+    if (item.state?.current == 'complete') {
+        setTimeout(clean, 5000);
+    } else if (item.error?.current == 'USER_CANCELED' && !item.canResume?.current) {
+        clean();
     }
 });
 chrome.runtime.onMessage.addListener((message, sender) => {
     switch (message.event) {
+        case 'contextmenu':
+            const maxLength = 20;
+            const menuId = 'copyPageText';
+            let text = message.data.trim();
+            if (text.length > maxLength) {
+                text = text.substr(0, maxLength - 1).trim() + '…';
+            }
+            chrome.contextMenus.update(menuId, { title: '复制“' + text + '”' });
+            setTimeout(() => chrome.contextMenus.update(menuId, { title: copyTextContextMenuIds.find(item => item.id == menuId).title }), 1000);
+            break;
         case 'selectionchange':
             const MD5 = string => {
                 function RotateLeft(lValue, iShiftBits) {
@@ -334,7 +341,7 @@ if (navigator.appVersion.includes('Edg')) {
     }));
 }
 
-chrome.webNavigation.onDOMContentLoaded.addListener(details => {
+chrome.webNavigation.onDOMContentLoaded.addListener(() => {
     function readClipboard(onread) {
         function onpaste(evt) {
             evt.preventDefault();
@@ -344,7 +351,7 @@ chrome.webNavigation.onDOMContentLoaded.addListener(details => {
         document.execCommand('paste');
         document.removeEventListener('paste', onpaste);
     }
-    function addDanmu(cid, details) {
+    function addDanmu(cid) {
         fetch('https://comment.bilibili.com/' + cid + '.xml')
             .then(response => response.text())
             .then(result => {
@@ -393,7 +400,6 @@ chrome.webNavigation.onDOMContentLoaded.addListener(details => {
                                     }
                                     .danmuVideo span {
                                         opacity: .5;
-                                        font-weight: bold;
                                         text-shadow: 1px 1px 1px black;
                                         position: absolute;
                                         white-space: nowrap;
@@ -496,25 +502,25 @@ chrome.webNavigation.onDOMContentLoaded.addListener(details => {
             } else {
                 matchResult = data.match(/^CV(\d+)$/);
                 if (matchResult != null) {
-                    addDanmu(matchResult[1], details)
+                    addDanmu(matchResult[1])
                 }
             }
         }
         if (search != null) {
             fetch('https://api.bilibili.com/x/player/pagelist?' + search)
                 .then(response => response.json())
-                .then(result => addDanmu(result.data[num - 1].cid, details));
+                .then(result => addDanmu(result.data[num - 1].cid));
         }
     });
 }, {
     'url': [
         { hostEquals: 'www.bimiacg.com', pathPrefix: '/bangumi' },
-        { hostEquals: 'bimiacg.net', pathPrefix: '/bangumi' },
-        { hostEquals: 'bimiacg2.net', pathPrefix: '/bangumi' },
+        { urlMatches: '.*bimiacg.*net.*', pathPrefix: '/bangumi' },
         { hostEquals: 'bimiacg.com', pathPrefix: '/bangumi' },
         { hostEquals: 'www.tucao.one', pathPrefix: '/play' },
         { hostEquals: 'www.yhdmk.com', pathPrefix: '/play' },
         { hostEquals: 'www.bbdm.cc', pathPrefix: '/play' },
         { hostEquals: 'www.yhdm.so', pathPrefix: '/v' },
+        { hostEquals: 'www.yinghuacd.com', pathPrefix: '/v' },
     ]
 });
