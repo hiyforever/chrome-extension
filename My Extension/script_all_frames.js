@@ -141,16 +141,12 @@ self.addEventListener('contextmenu', e => {
     document.querySelectorAll('[' + tag + ']').forEach(e => e.removeAttribute(tag));
     e.target.setAttribute(tag, true);
 });
-const updateContextMenu = e => {
-    if (e.button == 2) {
-        chrome.runtime.sendMessage({
-            event: 'contextmenu',
-            data: e.target.innerText
-        });
-    }
-};
-self.addEventListener('mousedown', updateContextMenu);
-self.addEventListener('mouseup', updateContextMenu);
+self.addEventListener('mouseover', e => {
+    chrome.runtime.sendMessage({
+        event: 'contextmenu',
+        data: e.target.innerText
+    });
+});
 const modified = new Set();
 self.addEventListener('DOMSubtreeModified', e => {
     if (e.target.querySelectorAll) {

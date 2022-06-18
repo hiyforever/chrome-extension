@@ -18,9 +18,10 @@ chrome.windows.onCreated.addListener(window => chrome.windows.getAll({ populate:
         removing = false;
     }
 }));
+const copyPageTextContextMenu = { id: 'copyPageText', title: '复制文字', contexts: ['page'], documentUrlPatterns: ['*://*/*'] };
 const copyTextContextMenuIds = [
     { id: 'copyLinkText', title: '复制链接文字', contexts: ['link'], documentUrlPatterns: ['*://*/*'] },
-    { id: 'copyPageText', title: '复制文字', contexts: ['page'], documentUrlPatterns: ['*://*/*'] }
+    copyPageTextContextMenu
 ];
 chrome.contextMenus.onClicked.addListener((info, tab) => {
     if (copyTextContextMenuIds.some(item => item.id == info.menuItemId)) {
@@ -49,6 +50,11 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
         });
     }
 });
+const resetCopyPageTextContextMenu = () => {
+    return chrome.contextMenus.update(copyPageTextContextMenu.id, { title: copyPageTextContextMenu.title });
+};
+chrome.tabs.onActivated.addListener(resetCopyPageTextContextMenu);
+chrome.windows.onFocusChanged.addListener(resetCopyPageTextContextMenu);
 chrome.runtime.onInstalled.addListener(() => copyTextContextMenuIds.forEach(e => chrome.contextMenus.create(e)));
 chrome.downloads.onChanged.addListener(item => {
     const clean = () => chrome.downloads.erase({ id: item.id });
@@ -58,17 +64,15 @@ chrome.downloads.onChanged.addListener(item => {
         clean();
     }
 });
-chrome.runtime.onMessage.addListener((message, sender) => {
+chrome.runtime.onMessage.addListener(message => {
     switch (message.event) {
         case 'contextmenu':
             const maxLength = 20;
-            const menuId = 'copyPageText';
             let text = message.data.trim();
             if (text.length > maxLength) {
                 text = text.substr(0, maxLength - 1).trim() + '…';
             }
-            chrome.contextMenus.update(menuId, { title: '复制“' + text + '”' });
-            setTimeout(() => chrome.contextMenus.update(menuId, { title: copyTextContextMenuIds.find(item => item.id == menuId).title }), 1000);
+            chrome.contextMenus.update(copyPageTextContextMenu.id, { title: '复制“' + text + '”' });
             break;
         case 'selectionchange':
             const MD5 = string => {
