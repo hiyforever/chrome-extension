@@ -284,39 +284,43 @@ chrome.runtime.onMessage.addListener(message => {
                     if (!text || message.data == text) {
                         return;
                     }
-                    chrome.tabs.executeScript({
-                        allFrames: true,
-                        code: '(' + function (source, target, x, y) {
-                            if (document.getSelection().toString() != unescape(source)) {
-                                return;
-                            }
-                            const element = document.createElement('pre');
-                            element.innerText = unescape(target).trim();
-                            element.style.width = 'initial';
-                            element.style.height = 'initial';
-                            element.style.maxWidth = '30em';
-                            element.style.maxHeight = '20em';
-                            element.style.overflow = 'auto';
-                            element.style.textAlign = 'initial';
-                            element.style.position = 'absolute';
-                            element.style.left = x + 'px';
-                            element.style.top = y + 'px';
-                            element.style.zIndex = Number.MAX_SAFE_INTEGER;
-                            element.style.backgroundColor = 'white';
-                            element.style.border = '1px solid rgba(0,0,0,.2)';
-                            element.style.boxShadow = '0 2px 4px rgba(0,0,0,.2)';
-                            element.style.margin = 'initial';
-                            element.style.padding = '5px 8px';
-                            element.style.outline = 'none';
-                            element.style.font = 'initial';
-                            element.style.color = 'initial';
-                            element.style.whiteSpace = 'pre-wrap';
-                            element.style.overflowWrap = 'anywhere';
-                            element.setAttribute('tabindex', 0);
-                            element.onblur = () => element.remove();
-                            document.body.append(element);
-                            element.focus();
-                        } + ')("' + escape(message.data) + '","' + escape(text) + '",' + message.x + ',' + message.y + ')'
+                    chrome.i18n.detectLanguage(text, info => {
+                        if (info.languages.some(l => l.language == 'zh')) {
+                            chrome.tabs.executeScript({
+                                allFrames: true,
+                                code: '(' + function (source, target, x, y) {
+                                    if (document.getSelection().toString() != unescape(source)) {
+                                        return;
+                                    }
+                                    const element = document.createElement('pre');
+                                    element.innerText = unescape(target).trim();
+                                    element.style.width = 'initial';
+                                    element.style.height = 'initial';
+                                    element.style.maxWidth = '30em';
+                                    element.style.maxHeight = '20em';
+                                    element.style.overflow = 'auto';
+                                    element.style.textAlign = 'initial';
+                                    element.style.position = 'absolute';
+                                    element.style.left = x + 'px';
+                                    element.style.top = y + 'px';
+                                    element.style.zIndex = Number.MAX_SAFE_INTEGER;
+                                    element.style.backgroundColor = 'white';
+                                    element.style.border = '1px solid rgba(0,0,0,.2)';
+                                    element.style.boxShadow = '0 2px 4px rgba(0,0,0,.2)';
+                                    element.style.margin = 'initial';
+                                    element.style.padding = '5px 8px';
+                                    element.style.outline = 'none';
+                                    element.style.font = 'initial';
+                                    element.style.color = 'initial';
+                                    element.style.whiteSpace = 'pre-wrap';
+                                    element.style.overflowWrap = 'anywhere';
+                                    element.setAttribute('tabindex', 0);
+                                    element.onblur = () => element.remove();
+                                    document.body.append(element);
+                                    element.focus();
+                                } + ')("' + escape(message.data) + '","' + escape(text) + '",' + message.x + ',' + message.y + ')'
+                            });
+                        }
                     });
                 });
             break;
