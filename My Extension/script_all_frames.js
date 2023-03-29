@@ -22,10 +22,10 @@ const isMatchPatternPage = (element, button, tagNames) => {
     let matchPattern;
     switch (button) {
         case 3:
-            matchPattern = /上一页|‹|«|<|上页|前|Previous Page|Prev Page|Previous|Prev/g;
+            matchPattern = /上一页|‹|«|<|上页|上一章|前|Previous Page|Prev Page|Previous|Prev/g;
             break;
         case 4:
-            matchPattern = /下一页|›|»|>|下页|次|Next Page|Next/g;
+            matchPattern = /下一页|›|»|>|下页|下一章|次|Next Page|Next/g;
             break;
         default:
             return false;
@@ -148,16 +148,13 @@ self.addEventListener('mouseover', e => {
     });
 });
 const modified = new Set();
-self.addEventListener('DOMSubtreeModified', e => {
-    if (e.target.querySelectorAll) {
-        modified.add(e.target);
-        setTimeout(() => {
-            modified.forEach(e => e.querySelectorAll('*').forEach(e => {
-                if (getComputedStyle(e).backgroundColor == 'rgb(255, 255, 255)') {
-                    e.style.backgroundColor = '#e0ce9e';
-                }
-            }));
-            modified.clear();
-        }, 0);
-    }
-});
+setInterval(() => {
+    modified.forEach(e => e.querySelectorAll('*').forEach(e => {
+        if (getComputedStyle(e).backgroundColor == 'rgb(255, 255, 255)') {
+            e.style.backgroundColor = '#e0ce9e';
+        }
+    }));
+    modified.clear();
+}, 0);
+new MutationObserver(list => list.forEach(e => modified.add(e.target)))
+    .observe(document.firstElementChild, { childList: true, subtree: true });
