@@ -1,3 +1,7 @@
+body>div {
+    background-color: white;
+}
+
 #my-dear-haruna-vm {
     visibility: hidden;
 }

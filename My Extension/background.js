@@ -18,44 +18,28 @@ chrome.windows.onCreated.addListener(window => chrome.windows.getAll({ populate:
         removing = false;
     }
 }));
-const copyPageTextContextMenu = { id: 'copyPageText', title: '复制文字', contexts: ['page'], documentUrlPatterns: ['*://*/*'] };
-const copyTextContextMenuIds = [
-    { id: 'copyLinkText', title: '复制链接文字', contexts: ['link'], documentUrlPatterns: ['*://*/*'] },
-    copyPageTextContextMenu
-];
-chrome.contextMenus.onClicked.addListener((info, tab) => {
-    if (copyTextContextMenuIds.some(item => item.id == info.menuItemId)) {
-        if (tab.id < 0) {
-            alert('不支持此操作');
-            return;
+let copyTextContextMenuText = '';
+const copyTextContextMenu = { id: 'copyText', title: '复制“”', contexts: ['page', 'link', 'editable'], documentUrlPatterns: ['*://*/*'] };
+chrome.contextMenus.onClicked.addListener(info => {
+    if (copyTextContextMenu.id == info.menuItemId) {
+        const oncopy = evt => {
+            evt.preventDefault();
+            evt.clipboardData.setData('text/plain', copyTextContextMenuText);
         }
-        chrome.tabs.executeScript(tab.id, {
-            code: '(' + function () {
-                const tag = 'data-context-menu-target';
-                const target = document.querySelector('[' + tag + ']');
-                target.removeAttribute(tag);
-                const text = target.innerText.trim();
-                if (navigator.clipboard) {
-                    navigator.clipboard.writeText(text).then(null, err => alert(err));
-                } else {
-                    function oncopy(evt) {
-                        evt.preventDefault();
-                        evt.clipboardData.setData('text/plain', text);
-                    }
-                    document.addEventListener('copy', oncopy);
-                    document.execCommand('copy');
-                    document.removeEventListener('copy', oncopy);
-                }
-            } + ')()'
-        });
+        document.addEventListener('copy', oncopy);
+        document.execCommand('copy');
+        document.removeEventListener('copy', oncopy);
     }
 });
-const resetCopyPageTextContextMenu = () => {
-    return chrome.contextMenus.update(copyPageTextContextMenu.id, { title: copyPageTextContextMenu.title });
-};
-chrome.tabs.onActivated.addListener(resetCopyPageTextContextMenu);
-chrome.windows.onFocusChanged.addListener(resetCopyPageTextContextMenu);
-chrome.runtime.onInstalled.addListener(() => copyTextContextMenuIds.forEach(e => chrome.contextMenus.create(e)));
+chrome.runtime.onInstalled.addListener(() => {
+    chrome.contextMenus.create(copyTextContextMenu);
+    chrome.windows.getAll({ populate: true }, windows => windows.forEach(window => window.tabs.forEach(tab => {
+        chrome.tabs.executeScript(tab.id, {
+            allFrames: true,
+            file: 'runtime_scripts.js'
+        });
+    })));
+});
 chrome.downloads.onChanged.addListener(item => {
     const clean = () => chrome.downloads.erase({ id: item.id });
     if (item.state?.current == 'complete') {
@@ -69,10 +53,11 @@ chrome.runtime.onMessage.addListener(message => {
         case 'contextmenu':
             const maxLength = 20;
             let text = message.data.trim();
+            copyTextContextMenuText = text;
             if (text.length > maxLength) {
                 text = text.substr(0, maxLength - 1).trim() + '…';
             }
-            chrome.contextMenus.update(copyPageTextContextMenu.id, { title: '复制“' + text + '”' });
+            chrome.contextMenus.update(copyTextContextMenu.id, { title: '复制“' + text + '”' });
             break;
         case 'selectionchange':
             const MD5 = string => {
@@ -327,28 +312,6 @@ chrome.runtime.onMessage.addListener(message => {
     }
 });
 
-if (navigator.appVersion.includes('Edg')) {
-    const tabIdList = new Set();
-    chrome.windows.onCreated.addListener(window => chrome.windows.get(window.id, { populate: true }, window => {
-        const tabId = window.tabs[0].id;
-        if (window.tabs.length == 1 && !tabIdList.has(tabId)) {
-            tabIdList.add(tabId);
-            chrome.windows.create({
-                tabId: tabId,
-                left: window.left,
-                top: window.top,
-                width: window.width,
-                height: window.height,
-                incognito: window.incognito,
-                focused: window.focused,
-                type: window.type,
-            }, newWindow => chrome.windows.update(newWindow.id, { state: window.state }));
-        } else {
-            tabIdList.delete(tabId);
-        }
-    }));
-}
-
 chrome.webNavigation.onDOMContentLoaded.addListener(() => {
     function readClipboard(onread) {
         function onpaste(evt) {
@@ -360,7 +323,10 @@ chrome.webNavigation.onDOMContentLoaded.addListener(() => {
         document.removeEventListener('paste', onpaste);
     }
     function addDanmu(cid) {
-        fetch('https://comment.bilibili.com/' + cid + '.xml')
+        addDanmuInternal('https://comment.bilibili.com/' + cid + '.xml');
+    }
+    function addDanmuInternal(url) {
+        fetch(url)
             .then(response => response.text())
             .then(result => {
                 allDanmus = [];
@@ -377,18 +343,22 @@ chrome.webNavigation.onDOMContentLoaded.addListener(() => {
                         'text': xml[i].textContent
                     });
                 }
-                setTimeout(() => chrome.tabs.executeScript({
-                    allFrames: true,
-                    code: '(' + function (allDanmus) {
-                        var video = document.getElementsByTagName('video')[0];
-                        if (!video || video.parentElement.classList.contains('danmuVideo')) {
-                            return;
-                        }
-                        addDanmus(video, allDanmus);
-                        function addDanmus(video, danmus) {
-                            if (!this.style) {
-                                this.style = document.createElement('style');
-                                this.style.innerHTML = `
+                addDanmuDirect(allDanmus)
+            });
+    }
+    function addDanmuDirect(allDanmus) {
+        setTimeout(() => chrome.tabs.executeScript({
+            allFrames: true,
+            code: '(' + function (allDanmus) {
+                var video = document.getElementsByTagName('video')[0];
+                if (!video || video.parentElement.classList.contains('danmuVideo')) {
+                    return;
+                }
+                addDanmus(video, allDanmus);
+                function addDanmus(video, danmus) {
+                    if (!this.style) {
+                        this.style = document.createElement('style');
+                        this.style.innerHTML = `
                                     .danmuVideo {
                                         position: relative;
                                         margin: auto;
@@ -417,83 +387,82 @@ chrome.webNavigation.onDOMContentLoaded.addListener(() => {
                                         animation: danmuShow 6s
                                     }
                                     @keyframes danmuShow {}`;
-                                document.firstElementChild.appendChild(this.style);
-                            }
-                            const danmuDiv = document.createElement('div');
-                            danmuDiv.classList.add('danmuDiv');
-                            danmuDiv.style.fontSize = '100%';
-                            danmuDiv.style.lineHeight = 'initial';
-                            danmuDiv.allDanmus = danmus;
-                            danmuDiv.currentTime = 0;
-                            danmuDiv.addDanmu = danmu => {
-                                if (document.getElementById('danmu' + danmu.id)) {
-                                    return;
-                                }
-                                var danmuSpan = document.createElement('span');
-                                danmuSpan.addEventListener('animationend', () => {
-                                    danmuSpan.remove();
-                                });
-                                danmuSpan.id = 'danmu' + danmu.id;
-                                danmuSpan.innerText = danmu.text;
-                                danmuSpan.style.fontSize = danmu.font / 12 + 'em';
-                                danmuSpan.style.color = danmu.color;
-                                danmuDiv.appendChild(danmuSpan);
-                                switch (danmu.local) {
-                                    case 5:
-                                        for (var i = 0; danmuDiv.getElementsByClassName('danmuTop' + i).length > 0; i++) { }
-                                        danmuSpan.style.transform = 'translateX(-50%) translateY(' + (i * 100) + '%)';
-                                        danmuSpan.classList.add('danmuShow');
-                                        danmuSpan.classList.add('danmuTop' + i);
-                                        break;
-                                    case 4:
-                                        for (i = 0; danmuDiv.getElementsByClassName('danmuBottom' + i).length > 0; i++) { }
-                                        danmuSpan.style.bottom = 0;
-                                        danmuSpan.style.transform = 'translateX(-50%) translateY(' + (-i * 100) + '%)';
-                                        danmuSpan.classList.add('danmuShow');
-                                        danmuSpan.classList.add('danmuBottom' + i);
-                                        break;
-                                    default:
-                                        for (i = 0; danmuDiv.getElementsByClassName('danmuMove' + i).length > 0; i++) {
-                                            if (!Array.from(danmuDiv.getElementsByClassName('danmuMove' + i)).find(e => getComputedStyle(e).right.replace('px', '') < danmuSpan.offsetWidth)) {
-                                                break;
-                                            }
-                                        }
-                                        var danmuStyle = document.createElement('style');
-                                        danmuStyle.innerHTML = '@keyframes danmuMove' + danmu.id + '{from{left:100%;transform:translateX(0%) translateY(' + (i * 100) + '%);}to{left:0%;transform: translateX(-100%) translateY(' + (i * 100) + '%);}}';
-                                        danmuSpan.appendChild(danmuStyle);
-                                        danmuSpan.style.animation = 'danmuMove' + danmu.id + ' 10s linear';
-                                        danmuSpan.classList.add('danmuMove' + i);
-                                        break;
-                                }
-                                danmuSpan.style.animationPlayState = 'inherit';
-                            };
-                            document.onwebkitfullscreenchange = () => {
-                                danmuDiv.style.fontSize = document.fullscreenElement ? '125%' : '100%';
-                            };
-                            video.parentElement.classList.add('danmuVideo');
-                            video.parentElement.style.fontSize = 'unset';
-                            video.parentElement.prepend(danmuDiv);
-                            video.onplaying = () => danmuDiv.style.animationPlayState = 'running';
-                            video.ontimeupdate = () => {
-                                if (!video.paused) {
-                                    danmuDiv.allDanmus.forEach(danmu => {
-                                        if (danmu.time <= video.currentTime && (danmuDiv.currentTime == 0 || danmu.time > danmuDiv.currentTime)) {
-                                            danmuDiv.addDanmu(danmu);
-                                        }
-                                    });
-                                }
-                                danmuDiv.currentTime = video.currentTime;
-                            };
-                            video.onseeking = () => {
-                                danmuDiv.innerHTML = '';
-                                danmuDiv.currentTime = video.currentTime;
-                            };
-                            video.onpause = () => danmuDiv.style.animationPlayState = 'paused';
-                            video.addEventListener('waiting', video.onpause);
+                        document.firstElementChild.appendChild(this.style);
+                    }
+                    const danmuDiv = document.createElement('div');
+                    danmuDiv.classList.add('danmuDiv');
+                    danmuDiv.style.fontSize = '100%';
+                    danmuDiv.style.lineHeight = 'initial';
+                    danmuDiv.allDanmus = danmus;
+                    danmuDiv.currentTime = 0;
+                    danmuDiv.addDanmu = danmu => {
+                        if (document.getElementById('danmu' + danmu.id)) {
+                            return;
                         }
-                    } + ')(' + JSON.stringify(allDanmus) + ')'
-                }), 1000);
-            });
+                        var danmuSpan = document.createElement('span');
+                        danmuSpan.addEventListener('animationend', () => {
+                            danmuSpan.remove();
+                        });
+                        danmuSpan.id = 'danmu' + danmu.id;
+                        danmuSpan.innerText = danmu.text;
+                        danmuSpan.style.fontSize = danmu.font / 12 + 'em';
+                        danmuSpan.style.color = danmu.color;
+                        danmuDiv.appendChild(danmuSpan);
+                        switch (danmu.local) {
+                            case 5:
+                                for (var i = 0; danmuDiv.getElementsByClassName('danmuTop' + i).length > 0; i++) { }
+                                danmuSpan.style.transform = 'translateX(-50%) translateY(' + (i * 100) + '%)';
+                                danmuSpan.classList.add('danmuShow');
+                                danmuSpan.classList.add('danmuTop' + i);
+                                break;
+                            case 4:
+                                for (i = 0; danmuDiv.getElementsByClassName('danmuBottom' + i).length > 0; i++) { }
+                                danmuSpan.style.bottom = 0;
+                                danmuSpan.style.transform = 'translateX(-50%) translateY(' + (-i * 100) + '%)';
+                                danmuSpan.classList.add('danmuShow');
+                                danmuSpan.classList.add('danmuBottom' + i);
+                                break;
+                            default:
+                                for (i = 0; danmuDiv.getElementsByClassName('danmuMove' + i).length > 0; i++) {
+                                    if (!Array.from(danmuDiv.getElementsByClassName('danmuMove' + i)).find(e => getComputedStyle(e).right.replace('px', '') < danmuSpan.offsetWidth)) {
+                                        break;
+                                    }
+                                }
+                                var danmuStyle = document.createElement('style');
+                                danmuStyle.innerHTML = '@keyframes danmuMove' + danmu.id + '{from{left:100%;transform:translateX(0%) translateY(' + (i * 100) + '%);}to{left:0%;transform: translateX(-100%) translateY(' + (i * 100) + '%);}}';
+                                danmuSpan.appendChild(danmuStyle);
+                                danmuSpan.style.animation = 'danmuMove' + danmu.id + ' 10s linear';
+                                danmuSpan.classList.add('danmuMove' + i);
+                                break;
+                        }
+                        danmuSpan.style.animationPlayState = 'inherit';
+                    };
+                    document.onwebkitfullscreenchange = () => {
+                        danmuDiv.style.fontSize = document.fullscreenElement ? '125%' : '100%';
+                    };
+                    video.parentElement.classList.add('danmuVideo');
+                    video.parentElement.style.fontSize = 'unset';
+                    video.parentElement.prepend(danmuDiv);
+                    video.onplaying = () => danmuDiv.style.animationPlayState = 'running';
+                    video.ontimeupdate = () => {
+                        if (!video.paused) {
+                            danmuDiv.allDanmus.forEach(danmu => {
+                                if (danmu.time <= video.currentTime && (danmuDiv.currentTime == 0 || danmu.time > danmuDiv.currentTime)) {
+                                    danmuDiv.addDanmu(danmu);
+                                }
+                            });
+                        }
+                        danmuDiv.currentTime = video.currentTime;
+                    };
+                    video.onseeking = () => {
+                        danmuDiv.innerHTML = '';
+                        danmuDiv.currentTime = video.currentTime;
+                    };
+                    video.onpause = () => danmuDiv.style.animationPlayState = 'paused';
+                    video.addEventListener('waiting', video.onpause);
+                }
+            } + ')(' + JSON.stringify(allDanmus) + ')'
+        }), 1000);
     }
     readClipboard(data => {
         var search;
@@ -511,6 +480,34 @@ chrome.webNavigation.onDOMContentLoaded.addListener(() => {
                 matchResult = data.match(/^CV(\d+)$/);
                 if (matchResult != null) {
                     addDanmu(matchResult[1])
+                } else {
+                    matchResult = data.match(/^h(\d+)$/);
+                    if (matchResult != null) {
+                        addDanmuInternal('https://www.tucao.cam/index.php?m=mukio&playerID=11-' + matchResult[1] + '-1-0')
+                    } else {
+                        matchResult = data.match(/^dv(\d+(\?link=\d+)?)$/);
+                        if (matchResult != null) {
+                            fetch("https://www.5dm.app/bangumi/dv" + matchResult[1]).then(res => res.text()).then(res => {
+                                const cid = res.match(/cid=([^&]+)/)[1];
+                                fetch('https://www.5dm.app/player/nxml.php?id=' + cid).then(res => res.json()).then(res => {
+                                    allDanmus = [];
+                                    res = res.data;
+                                    for (var i = 0; i < res.length; i++) {
+                                        var p = res[i];
+                                        allDanmus.push({
+                                            'id': (p[0] + p[6]).replace(/[\W]/g, ''),
+                                            'time': p[0],
+                                            'local': p[1] == 'top' ? 5 : p[1] == 'bottom' ? 4 : 0,
+                                            'font': parseFloat(p[7]) | 27.5,
+                                            'color': p[2],
+                                            'text': p[4]
+                                        });
+                                    }
+                                    addDanmuDirect(allDanmus);
+                                });
+                            });
+                        }
+                    }
                 }
             }
         }
@@ -530,5 +527,35 @@ chrome.webNavigation.onDOMContentLoaded.addListener(() => {
         { hostEquals: 'www.bbdm.cc', pathPrefix: '/play' },
         { hostEquals: 'www.yhdm.so', pathPrefix: '/v' },
         { hostEquals: 'www.yinghuacd.com', pathPrefix: '/v' },
+        { hostEquals: 'www.yhdmp.cc', pathPrefix: '/vp' },
+        { hostEquals: 'www.dmh8.com', pathPrefix: '/player' },
     ]
 });
+chrome.proxy.settings.set({
+    value: {
+        mode: "pac_script",
+        pacScript: { url: navigator.userAgentData.brands.some(b => b.brand == 'Microsoft Edge') ? 'http://10.168.1.1/proxy_all.pac' : 'http://10.168.1.1/proxy.pac' }
+    }, scope: 'regular'
+});
+
+if (navigator.userAgentData.brands.some(b => b.brand == 'Microsoft Edge')) {
+    const tabIdList = new Set();
+    chrome.windows.onCreated.addListener(window => chrome.windows.get(window.id, { populate: true }, window => {
+        const tabId = window.tabs[0].id;
+        if (window.tabs.length == 1 && !tabIdList.has(tabId)) {
+            tabIdList.add(tabId);
+            chrome.windows.create({
+                tabId: tabId,
+                left: window.left,
+                top: window.top,
+                width: window.width,
+                height: window.height,
+                incognito: window.incognito,
+                focused: window.focused,
+                type: window.type,
+            }, newWindow => chrome.windows.update(newWindow.id, { state: window.state }));
+        } else {
+            tabIdList.delete(tabId);
+        }
+    }));
+}

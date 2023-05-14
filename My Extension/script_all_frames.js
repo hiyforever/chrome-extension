@@ -136,17 +136,6 @@ self.addEventListener('mouseup', e => {
         });
     }
 });
-self.addEventListener('contextmenu', e => {
-    const tag = 'data-context-menu-target';
-    document.querySelectorAll('[' + tag + ']').forEach(e => e.removeAttribute(tag));
-    e.target.setAttribute(tag, true);
-});
-self.addEventListener('mouseover', e => {
-    chrome.runtime.sendMessage({
-        event: 'contextmenu',
-        data: e.target.innerText
-    });
-});
 const modified = new Set();
 setInterval(() => {
     modified.forEach(e => e.querySelectorAll('*').forEach(e => {

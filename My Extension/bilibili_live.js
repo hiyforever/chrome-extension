@@ -29,3 +29,4 @@ if (liveApp) {
     };
     liveApp.addEventListener('DOMNodeInserted', fixFullPage);
 }
+document.body.style.setProperty('background-color', 'inherit', 'important');

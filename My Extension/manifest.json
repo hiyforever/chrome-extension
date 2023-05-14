@@ -14,6 +14,16 @@
             "run_at": "document_start"
         },
         {
+            "js": [
+                "runtime_scripts.js"
+            ],
+            "matches": [
+                "<all_urls>"
+            ],
+            "all_frames": true,
+            "run_at": "document_start"
+        },
+        {
             "css": [
                 "style.css"
             ],
@@ -162,7 +172,8 @@
         "clipboardRead",
         "contextMenus",
         "downloads",
-        "webNavigation"
+        "webNavigation",
+        "proxy"
     ],
     "icons": {
         "48": "icon.png"
