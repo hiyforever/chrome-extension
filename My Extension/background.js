@@ -52,7 +52,7 @@ chrome.runtime.onMessage.addListener(message => {
     switch (message.event) {
         case 'contextmenu':
             const maxLength = 20;
-            let text = message.data.trim();
+            let text = message.data?.trim() || '';
             copyTextContextMenuText = text;
             if (text.length > maxLength) {
                 text = text.substr(0, maxLength - 1).trim() + '…';

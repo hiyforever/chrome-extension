@@ -1,9 +1,58 @@
+let mouseoverElement;
+self.addEventListener('mouseover', e => {
+    mouseoverElement = e.target;
+});
+self.addEventListener('mouseout', () => {
+    mouseoverElement = undefined;
+});
+let mousemovePoint = { x: 0, y: 0 };
+self.addEventListener('mousemove', e => {
+    mousemovePoint = { x: e.pageX, y: e.pageY };
+});
 self.addEventListener('keydown', e => {
-    if (e.ctrlKey) {
+    if (e.ctrlKey && !e.metaKey && !e.altKey && !e.shiftKey) {
         switch (e.key) {
             case 's':
             case 'd':
                 e.preventDefault();
+                break;
+            case 'c':
+                if (mouseoverElement && mouseoverElement.tagName != 'IFRAME' && !document.getSelection().toString()) {
+                    const text = mouseoverElement.innerText?.trim() || mouseoverElement.value?.trim() || '';
+                    const oncopy = evt => {
+                        evt.preventDefault();
+                        evt.clipboardData.setData('text/plain', text);
+                    };
+                    document.addEventListener('copy', oncopy);
+                    const success = document.execCommand('copy');
+                    document.removeEventListener('copy', oncopy);
+                    const element = document.createElement('pre');
+                    element.innerText = success ? '已复制“' + text + '”' : '复制“' + text + '”失败';
+                    element.style.width = 'initial';
+                    element.style.height = 'initial';
+                    element.style.maxWidth = '30em';
+                    element.style.maxHeight = '20em';
+                    element.style.overflow = 'auto';
+                    element.style.textAlign = 'initial';
+                    element.style.position = 'absolute';
+                    element.style.left = mousemovePoint.x + 'px';
+                    element.style.top = mousemovePoint.y + 'px';
+                    element.style.zIndex = Number.MAX_SAFE_INTEGER;
+                    element.style.backgroundColor = 'white';
+                    element.style.border = '1px solid rgba(0,0,0,.2)';
+                    element.style.boxShadow = '0 2px 4px rgba(0,0,0,.2)';
+                    element.style.margin = 'initial';
+                    element.style.padding = '5px 8px';
+                    element.style.outline = 'none';
+                    element.style.font = 'initial';
+                    element.style.color = 'initial';
+                    element.style.whiteSpace = 'pre-wrap';
+                    element.style.overflowWrap = 'anywhere';
+                    element.setAttribute('tabindex', 0);
+                    element.onblur = () => element.remove();
+                    document.body.append(element);
+                    element.focus();
+                }
                 break;
         }
     }
@@ -55,7 +104,7 @@ const matchActions = [{
 }, {
     isMatch: (element, button) => {
         const child = element.firstElementChild;
-        if (element.children.length != 1 || child.tagName != 'I' || !['BUTTON', 'A', "LI"].includes(element.tagName)) {
+        if (element.children.length != 1 || child.tagName != 'I' || !['BUTTON', 'A', 'LI'].includes(element.tagName)) {
             return false;
         }
         let matchText;
@@ -72,6 +121,26 @@ const matchActions = [{
         return child.className?.includes(matchText) && getComputedStyle(child, ':before').content?.match(/"[\u0000-\uffff]"/);
     },
     action: (element, button) => element.click()
+}, {
+    isMatch: (element, button) => {
+        const child = element.firstElementChild?.firstElementChild;
+        if (element.children.length != 1 || element.firstElementChild.children.length != 1 || child.tagName != 'svg' || !['LI'].includes(element.tagName)) {
+            return false;
+        }
+        let matchText;
+        switch (button) {
+            case 4:
+                matchText = '-right';
+                break;
+            default:
+                return false;
+        }
+        return child.className?.baseVal?.includes(matchText);
+    },
+    action: (element, button) => {
+        element.click();
+        scrollTo({ top: 0 });
+    }
 }];
 self.addEventListener('mouseup', e => {
     switch (e.button) {
