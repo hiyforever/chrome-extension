@@ -206,13 +206,32 @@ self.addEventListener('mouseup', e => {
     }
 });
 const modified = new Set();
-setInterval(() => {
-    modified.forEach(e => e.querySelectorAll('*').forEach(e => {
+new MutationObserver(list => {
+    const empty = modified.size <= 0;
+    list.forEach(e => modified.add(e.target));
+    if (empty) {
+        setTimeout(() => {
+            modified.forEach(e => update(e));
+            modified.clear();
+        }, 0);
+    }
+    function update(e) {
+        if (e.childElementCount <= 0) {
+            doUpdate(e);
+            return;
+        }
+        const walker = document.createTreeWalker(e, NodeFilter.SHOW_ELEMENT);
+        for (let node = e; node; node = next(walker)) {
+            doUpdate(node);
+        }
+    }
+    function next(walker) {
+        const e = walker.nextNode();
+        return modified.has(e) ? walker.nextSibling() : e;
+    }
+    function doUpdate(e) {
         if (getComputedStyle(e).backgroundColor == 'rgb(255, 255, 255)') {
             e.style.backgroundColor = '#e0ce9e';
         }
-    }));
-    modified.clear();
-}, 0);
-new MutationObserver(list => list.forEach(e => modified.add(e.target)))
-    .observe(document.firstElementChild, { childList: true, subtree: true });
+    }
+}).observe(document.firstElementChild, { childList: true, subtree: true });
