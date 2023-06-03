@@ -233,7 +233,7 @@ new MutationObserver(list => {
                     e.style.removeProperty('background-color');
                 }
                 if (getComputedStyle(e).backgroundColor == 'rgb(255, 255, 255)') {
-                    e.setAttribute('my-extension-background-color', true);
+                    e.setAttribute(name, true);
                     e.style.backgroundColor = '#e0ce9e';
                 }
             }
