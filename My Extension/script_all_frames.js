@@ -222,15 +222,15 @@ new MutationObserver(list => {
                 }
             });
             modified.clear();
+            function next(walker) {
+                const e = walker.nextNode();
+                return modified.has(e) ? walker.nextSibling() : e;
+            }
+            function doUpdate(e) {
+                if (getComputedStyle(e).backgroundColor == 'rgb(255, 255, 255)') {
+                    e.style.backgroundColor = '#e0ce9e';
+                }
+            }
         }, 0);
-    }
-    function next(walker) {
-        const e = walker.nextNode();
-        return modified.has(e) ? walker.nextSibling() : e;
-    }
-    function doUpdate(e) {
-        if (getComputedStyle(e).backgroundColor == 'rgb(255, 255, 255)') {
-            e.style.backgroundColor = '#e0ce9e';
-        }
     }
 }).observe(document.firstElementChild, { childList: true, subtree: true });
