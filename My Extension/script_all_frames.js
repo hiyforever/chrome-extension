@@ -211,19 +211,18 @@ new MutationObserver(list => {
     list.forEach(e => modified.add(e.target));
     if (empty) {
         setTimeout(() => {
-            modified.forEach(e => update(e));
+            modified.forEach(e => {
+                if (e.childElementCount <= 0) {
+                    doUpdate(e);
+                    return;
+                }
+                const walker = document.createTreeWalker(e, NodeFilter.SHOW_ELEMENT);
+                for (let node = e; node; node = next(walker)) {
+                    doUpdate(node);
+                }
+            });
             modified.clear();
         }, 0);
-    }
-    function update(e) {
-        if (e.childElementCount <= 0) {
-            doUpdate(e);
-            return;
-        }
-        const walker = document.createTreeWalker(e, NodeFilter.SHOW_ELEMENT);
-        for (let node = e; node; node = next(walker)) {
-            doUpdate(node);
-        }
     }
     function next(walker) {
         const e = walker.nextNode();
