@@ -1,0 +1,14 @@
+{
+    "action": {
+      "default_popup": "popup.html"
+    },
+    "permissions": [
+        "clipboardRead"
+    ],
+    "icons": {
+        "48": "icon.png"
+    },
+    "name": "ShareClipboard",
+    "version": "1.0",
+    "manifest_version": 3
+}
