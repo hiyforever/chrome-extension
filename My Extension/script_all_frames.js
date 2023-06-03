@@ -227,7 +227,13 @@ new MutationObserver(list => {
                 return modified.has(e) ? walker.nextSibling() : e;
             }
             function doUpdate(e) {
+                const name = 'my-extension-background-color';
+                if (e.getAttribute(name)) {
+                    e.removeAttribute(name);
+                    e.style.removeProperty('background-color');
+                }
                 if (getComputedStyle(e).backgroundColor == 'rgb(255, 255, 255)') {
+                    e.setAttribute('my-extension-background-color', true);
                     e.style.backgroundColor = '#e0ce9e';
                 }
             }
