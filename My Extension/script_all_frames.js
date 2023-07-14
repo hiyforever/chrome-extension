@@ -211,7 +211,7 @@ self.addEventListener('mouseup', e => {
 const modified = new Set();
 new MutationObserver(list => {
     const empty = modified.size <= 0;
-    list.forEach(e => modified.add(e.target));
+    list.forEach(e => e.addedNodes.forEach(e => !e.parentElement || modified.add(e.parentElement)));
     if (empty) {
         setTimeout(() => {
             modified.forEach(e => {
