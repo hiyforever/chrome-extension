@@ -230,6 +230,9 @@ new MutationObserver(list => {
                 return modified.has(e) ? walker.nextSibling() : e;
             }
             function doUpdate(e) {
+                if (!(e instanceof Element)) {
+                    return;
+                }
                 const name = 'my-extension-background-color';
                 if (e.getAttribute(name)) {
                     e.removeAttribute(name);
