@@ -1,0 +1,14 @@
+{
+    "background": {
+        "service_worker": "background.js"
+    },
+    "permissions": [
+        "contextMenus", "scripting", "activeTab"
+    ],
+    "icons": {
+        "48": "icon.png"
+    },
+    "name": "Full Page",
+    "version": "1.0",
+    "manifest_version": 3
+}

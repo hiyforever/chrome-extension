@@ -150,8 +150,11 @@ self.addEventListener('mouseup', e => {
                 for (const i in matchActions) {
                     if (matchActions[i].isMatch(element, e.button)) {
                         for (let current = element; current; current = current.parentElement) {
+                            if (!current.checkVisibility()) {
+                                return;
+                            }
                             const style = getComputedStyle(current);
-                            if (style.cursor == 'not-allowed' || style.display == 'none') {
+                            if (style.cursor == 'not-allowed') {
                                 return;
                             }
                         }
