@@ -238,9 +238,21 @@ new MutationObserver(list => {
                     e.removeAttribute(name);
                     e.style.removeProperty('background-color');
                 }
-                if (getComputedStyle(e).backgroundColor == 'rgb(255, 255, 255)') {
+                const style = getComputedStyle(e);
+                if (style.backgroundColor == 'rgb(255, 255, 255)') {
                     e.setAttribute(name, true);
                     e.style.backgroundColor = '#e0ce9e';
+                }
+                let backgroundStyle = style;
+                for (let backgroundElement = e;
+                    backgroundStyle?.backgroundColor == 'rgba(0, 0, 0, 0)';
+                    backgroundElement = backgroundElement.parentElement, backgroundStyle = backgroundElement ? getComputedStyle(backgroundElement) : null) {
+                }
+                if (backgroundStyle?.backgroundColor == 'rgb(224, 206, 158)') {
+                    const colors = style.color.match(/rgb\((\d+), (\d+), (\d+)\)/)?.slice(1, 4);
+                    if (colors?.every(color => color >= 100)) {
+                        e.style.color = 'rgb(' + colors.map(color => color / 2).join(', ') + ')';
+                    }
                 }
             }
         }, 0);

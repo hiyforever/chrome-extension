@@ -16,7 +16,7 @@ self.addEventListener('DOMNodeInserted', e => {
         });
     } else if (e.target.classList && e.target.classList.contains('bpx-player-ending')) {
         const items = document.querySelectorAll('.bpx-player-ending-related-item-cover');
-        const links = document.querySelectorAll('.video-page-card .pic a');
+        const links = document.querySelectorAll('.video-page-card-small .pic a');
         for (let i = 0; i < items.length; i++) {
             const e = items[i];
             e.addEventListener('mousedown', evt => {

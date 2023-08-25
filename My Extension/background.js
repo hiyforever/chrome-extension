@@ -31,6 +31,15 @@ chrome.contextMenus.onClicked.addListener(info => {
         document.removeEventListener('copy', oncopy);
     }
 });
+chrome.tabs.onActivated.addListener(() => {
+    chrome.contextMenus.update(copyTextContextMenu.id, { title: copyTextContextMenu.title });
+});
+chrome.windows.onFocusChanged.addListener(() => {
+    chrome.contextMenus.update(copyTextContextMenu.id, { title: copyTextContextMenu.title });
+});
+chrome.tabs.onUpdated.addListener(() => {
+    chrome.contextMenus.update(copyTextContextMenu.id, { title: copyTextContextMenu.title });
+});
 chrome.runtime.onInstalled.addListener(() => {
     chrome.contextMenus.create(copyTextContextMenu);
     chrome.windows.getAll({ populate: true }, windows => windows.forEach(window => window.tabs.forEach(tab => {
@@ -531,6 +540,7 @@ chrome.webNavigation.onDOMContentLoaded.addListener(() => {
         { hostEquals: 'www.dmh8.com', pathPrefix: '/player' },
     ]
 });
+// if (!navigator.userAgentData.brands.some(b => b.brand == 'Microsoft Edge'))
 chrome.proxy.settings.set({
     value: {
         mode: "pac_script",
