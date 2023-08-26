@@ -243,10 +243,12 @@ new MutationObserver(list => {
                         e.style.removeProperty('background-color');
                     }
                 }
+                const customColors = [224, 206, 158];
+                const customColor = 'rgb(' + customColors.join(', ') + ')';
                 const style = getComputedStyle(e);
                 if (style.backgroundColor == 'rgb(255, 255, 255)') {
                     e.setAttribute(name, e.style.backgroundColor || '');
-                    e.style.backgroundColor = '#e0ce9e';
+                    e.style.backgroundColor = customColor;
                 }
                 const colorName = 'my-extension-color';
                 if (e.hasAttribute(colorName)) {
@@ -259,17 +261,31 @@ new MutationObserver(list => {
                     }
                 }
                 const colors = style.color.match(/rgb\((\d+), (\d+), (\d+)\)/)?.slice(1, 4);
-                if (colors?.every(color => color >= 128)) {
+                if (colors && (colors.every(color => color >= 128) || colors[1] >= Math.max(colors)) && contrast(colors, customColors) < 4.5) {
                     let backgroundStyle = style;
                     for (let backgroundElement = e;
                         backgroundStyle?.backgroundColor == 'rgba(0, 0, 0, 0)';
                         backgroundElement = backgroundElement.parentElement, backgroundStyle = backgroundElement ? getComputedStyle(backgroundElement) : null) {
                     }
-                    if (backgroundStyle?.backgroundColor == 'rgb(224, 206, 158)') {
+                    if (backgroundStyle?.backgroundColor == customColor) {
                         e.setAttribute(colorName, e.style.color || '');
                         e.style.color = 'rgb(' + colors.map(color => color / 2).join(', ') + ')';
                     }
                 }
+            }
+            function luminanace(r, g, b) {
+                const c = [r, g, b].map(v => {
+                    v /= 255;
+                    return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+                });
+                return c[0] * 0.2126 + c[1] * 0.7152 + c[2] * 0.0722;
+            }
+            function contrast(rgb1, rgb2) {
+                const lum1 = luminanace(rgb1[0], rgb1[1], rgb1[2]);
+                const lum2 = luminanace(rgb2[0], rgb2[1], rgb2[2]);
+                const brightest = Math.max(lum1, lum2);
+                const darkest = Math.min(lum1, lum2);
+                return (brightest + 0.05) / (darkest + 0.05);
             }
         }, 0);
     }
