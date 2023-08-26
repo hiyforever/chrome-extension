@@ -261,7 +261,7 @@ new MutationObserver(list => {
                     }
                 }
                 const colors = style.color.match(/rgb\((\d+), (\d+), (\d+)\)/)?.slice(1, 4);
-                if (colors && (colors.every(color => color >= 128) || colors[1] >= Math.max(colors)) && contrast(colors, customColors) < 4.5) {
+                if (colors?.every(color => color >= 128)) {
                     let backgroundStyle = style;
                     for (let backgroundElement = e;
                         backgroundStyle?.backgroundColor == 'rgba(0, 0, 0, 0)';
@@ -273,6 +273,7 @@ new MutationObserver(list => {
                     }
                 }
             }
+            // contrast(colors, customColors) < 4.5
             function luminanace(r, g, b) {
                 const c = [r, g, b].map(v => {
                     v /= 255;
