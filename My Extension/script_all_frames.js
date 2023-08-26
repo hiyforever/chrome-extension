@@ -243,14 +243,14 @@ new MutationObserver(list => {
                     e.setAttribute(name, true);
                     e.style.backgroundColor = '#e0ce9e';
                 }
-                let backgroundStyle = style;
-                for (let backgroundElement = e;
-                    backgroundStyle?.backgroundColor == 'rgba(0, 0, 0, 0)';
-                    backgroundElement = backgroundElement.parentElement, backgroundStyle = backgroundElement ? getComputedStyle(backgroundElement) : null) {
-                }
-                if (backgroundStyle?.backgroundColor == 'rgb(224, 206, 158)') {
-                    const colors = style.color.match(/rgb\((\d+), (\d+), (\d+)\)/)?.slice(1, 4);
-                    if (colors?.every(color => color >= 100)) {
+                const colors = style.color.match(/rgb\((\d+), (\d+), (\d+)\)/)?.slice(1, 4);
+                if (colors?.every(color => color >= 128)) {
+                    let backgroundStyle = style;
+                    for (let backgroundElement = e;
+                        backgroundStyle?.backgroundColor == 'rgba(0, 0, 0, 0)';
+                        backgroundElement = backgroundElement.parentElement, backgroundStyle = backgroundElement ? getComputedStyle(backgroundElement) : null) {
+                    }
+                    if (backgroundStyle?.backgroundColor == 'rgb(224, 206, 158)') {
                         e.style.color = 'rgb(' + colors.map(color => color / 2).join(', ') + ')';
                     }
                 }
