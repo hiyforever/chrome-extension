@@ -234,14 +234,29 @@ new MutationObserver(list => {
                     return;
                 }
                 const name = 'my-extension-background-color';
-                if (e.getAttribute(name)) {
+                if (e.hasAttribute(name)) {
+                    const backgroundColor = e.getAttribute(name);
                     e.removeAttribute(name);
-                    e.style.removeProperty('background-color');
+                    if (backgroundColor) {
+                        e.style.backgroundColor = backgroundColor;
+                    } else {
+                        e.style.removeProperty('background-color');
+                    }
                 }
                 const style = getComputedStyle(e);
                 if (style.backgroundColor == 'rgb(255, 255, 255)') {
-                    e.setAttribute(name, true);
+                    e.setAttribute(name, e.style.backgroundColor || '');
                     e.style.backgroundColor = '#e0ce9e';
+                }
+                const colorName = 'my-extension-color';
+                if (e.hasAttribute(colorName)) {
+                    const color = e.getAttribute(colorName);
+                    e.removeAttribute(colorName);
+                    if (color) {
+                        e.style.color = color;
+                    } else {
+                        e.style.removeProperty('color');
+                    }
                 }
                 const colors = style.color.match(/rgb\((\d+), (\d+), (\d+)\)/)?.slice(1, 4);
                 if (colors?.every(color => color >= 128)) {
@@ -251,6 +266,7 @@ new MutationObserver(list => {
                         backgroundElement = backgroundElement.parentElement, backgroundStyle = backgroundElement ? getComputedStyle(backgroundElement) : null) {
                     }
                     if (backgroundStyle?.backgroundColor == 'rgb(224, 206, 158)') {
+                        e.setAttribute(colorName, e.style.color || '');
                         e.style.color = 'rgb(' + colors.map(color => color / 2).join(', ') + ')';
                     }
                 }
