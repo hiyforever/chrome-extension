@@ -16,46 +16,50 @@ self.addEventListener('keydown', e => {
             case 'd':
                 e.preventDefault();
                 break;
-            case 'c':
-                if (mouseoverElement && mouseoverElement.tagName != 'IFRAME' && !document.getSelection().toString()) {
-                    const text = mouseoverElement.innerText?.trim() || mouseoverElement.value?.trim() || '';
-                    const oncopy = evt => {
-                        evt.preventDefault();
-                        evt.clipboardData.setData('text/plain', text);
-                    };
-                    document.addEventListener('copy', oncopy);
-                    const success = document.execCommand('copy');
-                    document.removeEventListener('copy', oncopy);
-                    const element = document.createElement('pre');
-                    element.innerText = success ? '已复制“' + text + '”' : '复制“' + text + '”失败';
-                    element.style.width = 'initial';
-                    element.style.height = 'initial';
-                    element.style.maxWidth = '30em';
-                    element.style.maxHeight = '20em';
-                    element.style.overflow = 'auto';
-                    element.style.textAlign = 'initial';
-                    element.style.position = 'absolute';
-                    element.style.left = mousemovePoint.x + 'px';
-                    element.style.top = mousemovePoint.y + 'px';
-                    element.style.zIndex = Number.MAX_SAFE_INTEGER;
-                    element.style.backgroundColor = 'white';
-                    element.style.border = '1px solid rgba(0,0,0,.2)';
-                    element.style.boxShadow = '0 2px 4px rgba(0,0,0,.2)';
-                    element.style.margin = 'initial';
-                    element.style.padding = '5px 8px';
-                    element.style.outline = 'none';
-                    element.style.font = 'initial';
-                    element.style.color = 'initial';
-                    element.style.whiteSpace = 'pre-wrap';
-                    element.style.overflowWrap = 'anywhere';
-                    element.setAttribute('tabindex', 0);
-                    element.onblur = () => element.remove();
-                    document.body.append(element);
-                    element.focus();
-                }
-                break;
         }
     }
+});
+self.addEventListener('copy', evt => {
+    if (!mouseoverElement || mouseoverElement.tagName == 'IFRAME' || document.getSelection().toString()) {
+        return;
+    }
+    const text = mouseoverElement.innerText?.trim() || mouseoverElement.value?.trim() || '';
+    evt.clipboardData.setData('text/plain', text);
+}, true);
+self.addEventListener('copy', evt => {
+    let text;
+    if (!mouseoverElement || mouseoverElement.tagName == 'IFRAME' || document.getSelection().toString()) {
+        text = document.getSelection().toString();
+    } else {
+        text = evt.clipboardData.getData('text/plain');
+        evt.preventDefault();
+    }
+    const element = document.createElement('pre');
+    element.innerText = '已复制“' + text + '”';
+    element.style.width = 'initial';
+    element.style.height = 'initial';
+    element.style.maxWidth = '30em';
+    element.style.maxHeight = '20em';
+    element.style.overflow = 'auto';
+    element.style.textAlign = 'initial';
+    element.style.position = 'absolute';
+    element.style.left = mousemovePoint.x + 'px';
+    element.style.top = mousemovePoint.y + 'px';
+    element.style.zIndex = Number.MAX_SAFE_INTEGER;
+    element.style.backgroundColor = 'white';
+    element.style.border = '1px solid rgba(0,0,0,.2)';
+    element.style.boxShadow = '0 2px 4px rgba(0,0,0,.2)';
+    element.style.margin = 'initial';
+    element.style.padding = '5px 8px';
+    element.style.outline = 'none';
+    element.style.font = 'initial';
+    element.style.color = 'initial';
+    element.style.whiteSpace = 'pre-wrap';
+    element.style.overflowWrap = 'anywhere';
+    element.setAttribute('tabindex', 0);
+    element.onblur = () => element.remove();
+    document.body.append(element);
+    setTimeout(() => element.focus(), 0);
 });
 self.addEventListener('mousemove', e => {
     const element = e.target;
@@ -119,6 +123,26 @@ const matchActions = [{
                 return false;
         }
         return child.className?.includes(matchText) && getComputedStyle(child, ':before').content?.match(/"[\u0000-\uffff]"/);
+    },
+    action: (element, button) => element.click()
+}, {
+    isMatch: (element, button) => {
+        const child = element.firstElementChild;
+        if (element.children.length != 1 || child.tagName != 'svg' || !['A'].includes(element.tagName)) {
+            return false;
+        }
+        let matchText;
+        switch (button) {
+            case 3:
+                matchText = 'prev';
+                break;
+            case 4:
+                matchText = 'next';
+                break;
+            default:
+                return false;
+        }
+        return element.getAttribute('rel') == matchText;
     },
     action: (element, button) => element.click()
 }, {

@@ -10,7 +10,7 @@ chrome.contextMenus.onClicked.addListener(info => {
                 tabId: tab.id
             },
             func: () => {
-                const video = document.querySelector('video');
+                const video = document.querySelector('video.player') || document.querySelector('video');
                 if (!video) {
                     return;
                 }
