@@ -20,19 +20,21 @@ self.addEventListener('keydown', e => {
     }
 });
 self.addEventListener('copy', evt => {
-    if (!mouseoverElement || mouseoverElement.tagName == 'IFRAME' || document.getSelection().toString()) {
-        return;
-    }
-    const text = mouseoverElement.innerText?.trim() || mouseoverElement.value?.trim() || '';
-    evt.clipboardData.setData('text/plain', text);
-}, true);
-self.addEventListener('copy', evt => {
     let text;
-    if (!mouseoverElement || mouseoverElement.tagName == 'IFRAME' || document.getSelection().toString()) {
-        text = document.getSelection().toString();
-    } else {
-        text = evt.clipboardData.getData('text/plain');
+    if (mouseoverElement && mouseoverElement.tagName != 'IFRAME' && !document.getSelection().toString() && evt.clipboardData.types.length <= 0) {
+        text = mouseoverElement.innerText?.trim() || mouseoverElement.value?.trim() || '';
+        evt.clipboardData.setData('text/plain', text);
         evt.preventDefault();
+    } else if (evt.defaultPrevented) {
+        if (evt.clipboardData.types.length <= 0) {
+            return;
+        }
+        text = evt.clipboardData.getData('text/plain');
+    } else {
+        text = document.getSelection().toString();
+        if (text == '') {
+            return;
+        }
     }
     const element = document.createElement('pre');
     element.innerText = '已复制“' + text + '”';
