@@ -52,7 +52,7 @@ chrome.runtime.onInstalled.addListener(() => {
 chrome.downloads.onChanged.addListener(item => {
     const clean = () => chrome.downloads.erase({ id: item.id });
     if (item.state?.current == 'complete') {
-        setTimeout(clean, 5000);
+        setTimeout(clean, 10000);
     } else if (item.error?.current == 'USER_CANCELED' && !item.canResume?.current) {
         clean();
     }
