@@ -18,13 +18,14 @@ chrome.windows.onCreated.addListener(window => chrome.windows.getAll({ populate:
         removing = false;
     }
 }));
-let copyTextContextMenuText = '';
+let copyTextContextMenuData = { 'text/plain': '' };
 const copyTextContextMenu = { id: 'copyText', title: '复制“”', contexts: ['page', 'link', 'editable'], documentUrlPatterns: ['*://*/*'] };
 chrome.contextMenus.onClicked.addListener(info => {
     if (copyTextContextMenu.id == info.menuItemId) {
         const oncopy = evt => {
             evt.preventDefault();
-            evt.clipboardData.setData('text/plain', copyTextContextMenuText);
+            Object.keys(copyTextContextMenuData)
+                .forEach(key => evt.clipboardData.setData(key, copyTextContextMenuData[key]));
         }
         document.addEventListener('copy', oncopy);
         document.execCommand('copy');
@@ -61,10 +62,10 @@ chrome.runtime.onMessage.addListener(message => {
     switch (message.event) {
         case 'contextmenu':
             const maxLength = 20;
-            let text = message.data?.trim() || '';
-            copyTextContextMenuText = text;
+            copyTextContextMenuData = message.data;
+            let text = copyTextContextMenuData['text/plain'];
             if (text.length > maxLength) {
-                text = text.substr(0, maxLength - 1).trim() + '…';
+                text = text.substring(0, maxLength - 1).trim() + '…';
             }
             chrome.contextMenus.update(copyTextContextMenu.id, { title: '复制“' + text + '”' });
             break;

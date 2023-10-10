@@ -19,11 +19,19 @@ self.addEventListener('keydown', e => {
         }
     }
 });
+function extractElementCopyData(e) {
+    return {
+        'text/plain': e.innerText?.trim() || e.value?.trim() ||
+            e.src?.trim() || e.href?.trim() || e.placeholder?.trim() || '',
+        'text/html': e.outerHTML,
+    };
+}
 self.addEventListener('copy', evt => {
     let text;
     if (mouseoverElement && mouseoverElement.tagName != 'IFRAME' && !document.getSelection().toString() && evt.clipboardData.types.length <= 0) {
-        text = mouseoverElement.innerText?.trim() || mouseoverElement.value?.trim() || '';
-        evt.clipboardData.setData('text/plain', text);
+        const data = extractElementCopyData(mouseoverElement);
+        text = data['text/plain'];
+        Object.keys(data).forEach(key => evt.clipboardData.setData(key, data[key]));
         evt.preventDefault();
     } else if (evt.defaultPrevented) {
         if (evt.clipboardData.types.length <= 0) {

@@ -2,20 +2,11 @@
     "content_scripts": [
         {
             "js": [
-                "script_all_frames.js"
+                "script_all_frames.js",
+                "runtime_scripts.js"
             ],
             "css": [
                 "style_all_frames.css"
-            ],
-            "matches": [
-                "<all_urls>"
-            ],
-            "all_frames": true,
-            "run_at": "document_start"
-        },
-        {
-            "js": [
-                "runtime_scripts.js"
             ],
             "matches": [
                 "<all_urls>"

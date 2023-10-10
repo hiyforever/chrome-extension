@@ -6,7 +6,7 @@ const sendContextmenuMessage = e => {
         }
         chrome.runtime.sendMessage({
             event: 'contextmenu',
-            data: e.target.innerText?.trim() || e.target.value,
+            data: extractElementCopyData(e.target),
         });
     } else {
         sendContextmenuEvents.forEach(event => self.removeEventListener(event, sendContextmenuMessage));
