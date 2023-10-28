@@ -296,7 +296,7 @@ chrome.runtime.onMessage.addListener(message => {
                                     element.style.overflow = 'auto';
                                     element.style.textAlign = 'initial';
                                     element.style.position = 'absolute';
-                                    element.style.left = x + 'px';
+                                    element.style.left = x + 5 + 'px';
                                     element.style.top = y + 'px';
                                     element.style.zIndex = Number.MAX_SAFE_INTEGER;
                                     element.style.backgroundColor = 'white';
@@ -310,9 +310,18 @@ chrome.runtime.onMessage.addListener(message => {
                                     element.style.whiteSpace = 'pre-wrap';
                                     element.style.overflowWrap = 'anywhere';
                                     element.setAttribute('tabindex', 0);
-                                    element.onblur = () => element.remove();
+                                    const listener = e => {
+                                        if (e.target == element || mouseoverElement == element) {
+                                            return;
+                                        }
+                                        removeEventListener('mousedown', listener);
+                                        removeEventListener('keydown', listener);
+                                        element.remove();
+                                    };
+                                    element.onblur = listener;
+                                    addEventListener('mousedown', listener);
+                                    addEventListener('keydown', listener);
                                     document.body.append(element);
-                                    element.focus();
                                 } + ')("' + escape(message.data) + '","' + escape(text) + '",' + message.x + ',' + message.y + ')'
                             });
                         }

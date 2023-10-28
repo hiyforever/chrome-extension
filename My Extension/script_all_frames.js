@@ -53,7 +53,7 @@ self.addEventListener('copy', evt => {
     element.style.overflow = 'auto';
     element.style.textAlign = 'initial';
     element.style.position = 'absolute';
-    element.style.left = mousemovePoint.x + 'px';
+    element.style.left = mousemovePoint.x + 5 + 'px';
     element.style.top = mousemovePoint.y + 'px';
     element.style.zIndex = Number.MAX_SAFE_INTEGER;
     element.style.backgroundColor = 'white';
@@ -67,9 +67,18 @@ self.addEventListener('copy', evt => {
     element.style.whiteSpace = 'pre-wrap';
     element.style.overflowWrap = 'anywhere';
     element.setAttribute('tabindex', 0);
-    element.onblur = () => element.remove();
+    const listener = e => {
+        if (e.target == element || mouseoverElement == element) {
+            return;
+        }
+        removeEventListener('mousedown', listener);
+        removeEventListener('keydown', listener);
+        element.remove();
+    };
+    element.onblur = listener;
+    addEventListener('mousedown', listener);
+    addEventListener('keydown', listener);
     document.body.append(element);
-    setTimeout(() => element.focus(), 0);
 });
 self.addEventListener('mousemove', e => {
     const element = e.target;
