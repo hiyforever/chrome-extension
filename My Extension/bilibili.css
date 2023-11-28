@@ -10,6 +10,10 @@ p, h3 {
     margin-left: 0 !important;
 }
 
+.video-info-container .video-title {
+    overflow: unset !important;
+}
+
 .fixed-header .bili-header__bar {
     position: absolute !important;
 }

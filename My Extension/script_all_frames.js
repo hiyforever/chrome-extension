@@ -184,6 +184,15 @@ const matchActions = [{
         element.click();
         scrollTo({ top: 0 });
     }
+}, {
+    isMatch: (element, button) => {
+        if (button != 3 || !['BUTTON'].includes(element.tagName)) {
+            return false;
+        }
+        return [element.textContent, element.title]
+            .some(text => text.trim() != '' && text.replaceAll(/取消|取 消|关闭|关 闭/g, '').trim() == '');
+    },
+    action: (element, button) => element.click()
 }];
 self.addEventListener('mouseup', e => {
     switch (e.button) {
