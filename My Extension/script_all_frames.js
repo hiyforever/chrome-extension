@@ -206,7 +206,7 @@ self.addEventListener('mouseup', e => {
                                 return;
                             }
                             const style = getComputedStyle(current);
-                            if (style.cursor == 'not-allowed') {
+                            if (style.cursor == 'not-allowed' || style.pointerEvents == 'none' || style.opacity <= 0) {
                                 return;
                             }
                         }
