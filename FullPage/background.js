@@ -26,6 +26,7 @@ chrome.contextMenus.onClicked.addListener(info => {
                 video.style.maxWidth = video.style.maxHeight = container.style.maxWidth = container.style.maxHeight = 'unset';
                 container.style.position = 'fixed';
                 container.style.left = container.style.top = 0;
+                container.style.padding = container.style.margin = 0;
                 container.style.zIndex = Number.MAX_SAFE_INTEGER;
             }
         });
