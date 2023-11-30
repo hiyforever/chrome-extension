@@ -186,11 +186,20 @@ const matchActions = [{
     }
 }, {
     isMatch: (element, button) => {
-        if (button != 3 || !['BUTTON'].includes(element.tagName)) {
+        if (button != 3 || 'BUTTON' != element.tagName && 'button' != element.type) {
             return false;
         }
-        return [element.textContent, element.title]
-            .some(text => text.trim() != '' && text.replaceAll(/取消|取 消|关闭|关 闭/g, '').trim() == '');
+        if (![element.textContent, element.value]
+            .some(text => text.trim() != '' && text.replaceAll(/取消|取 消|关闭|关 闭/g, '').trim() == '')) {
+            return false;
+        }
+        for (let current = element; current; current = current.parentElement) {
+            const style = getComputedStyle(current);
+            if (style.position == 'fixed') {
+                return true;
+            }
+        }
+        return false;
     },
     action: (element, button) => element.click()
 }];
