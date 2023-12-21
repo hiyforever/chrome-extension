@@ -21,8 +21,8 @@ self.addEventListener('keydown', e => {
 });
 function extractElementCopyData(e) {
     return {
-        'text/plain': e.innerText?.trim() || e.value?.trim() ||
-            e.src?.trim() || e.href?.trim() || e.placeholder?.trim() || '',
+        'text/plain': e.innerText?.trim?.() || e.value?.trim?.() ||
+            e.src?.trim?.() || e.href?.trim?.() || e.placeholder?.trim?.() || '',
         'text/html': e.outerHTML,
     };
 }
