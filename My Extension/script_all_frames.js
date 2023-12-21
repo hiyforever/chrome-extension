@@ -310,7 +310,7 @@ new MutationObserver(list => {
                         e.style.removeProperty('color');
                     }
                 }
-                setTimeout(() => {
+                function doColor() {
                     const customColors = [224, 206, 158];
                     const customColor = 'rgb(' + customColors.join(', ') + ')';
                     const style = getComputedStyle(e);
@@ -330,7 +330,9 @@ new MutationObserver(list => {
                             e.style.color = 'rgb(' + colors.map(color => color / 2).join(', ') + ')';
                         }
                     }
-                }, 0);
+                }
+                setTimeout(() => doColor(), 0);
+                doColor();
             }
             // contrast(colors, customColors) < 4.5
             function luminanace(r, g, b) {
