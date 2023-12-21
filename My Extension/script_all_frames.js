@@ -300,13 +300,6 @@ new MutationObserver(list => {
                         e.style.removeProperty('background-color');
                     }
                 }
-                const customColors = [224, 206, 158];
-                const customColor = 'rgb(' + customColors.join(', ') + ')';
-                const style = getComputedStyle(e);
-                if (style.backgroundColor == 'rgb(255, 255, 255)') {
-                    e.setAttribute(name, e.style.backgroundColor || '');
-                    e.style.backgroundColor = customColor;
-                }
                 const colorName = 'my-extension-color';
                 if (e.hasAttribute(colorName)) {
                     const color = e.getAttribute(colorName);
@@ -317,18 +310,27 @@ new MutationObserver(list => {
                         e.style.removeProperty('color');
                     }
                 }
-                const colors = style.color.match(/rgb\((\d+), (\d+), (\d+)\)/)?.slice(1, 4);
-                if (colors?.every(color => color >= 128) && (e.innerText || e.value)) {
-                    let backgroundStyle = style;
-                    for (let backgroundElement = e;
-                        backgroundStyle?.backgroundColor == 'rgba(0, 0, 0, 0)';
-                        backgroundElement = backgroundElement.parentElement, backgroundStyle = backgroundElement ? getComputedStyle(backgroundElement) : null) {
+                setTimeout(() => {
+                    const customColors = [224, 206, 158];
+                    const customColor = 'rgb(' + customColors.join(', ') + ')';
+                    const style = getComputedStyle(e);
+                    if (style.backgroundColor == 'rgb(255, 255, 255)') {
+                        e.setAttribute(name, e.style.backgroundColor || '');
+                        e.style.backgroundColor = customColor;
                     }
-                    if (backgroundStyle?.backgroundColor == customColor) {
-                        e.setAttribute(colorName, e.style.color || '');
-                        e.style.color = 'rgb(' + colors.map(color => color / 2).join(', ') + ')';
+                    const colors = style.color.match(/rgb\((\d+), (\d+), (\d+)\)/)?.slice(1, 4);
+                    if (colors?.every(color => color >= 128) && (e.innerText || e.value)) {
+                        let backgroundStyle = style;
+                        for (let backgroundElement = e;
+                            backgroundStyle?.backgroundColor == 'rgba(0, 0, 0, 0)';
+                            backgroundElement = backgroundElement.parentElement, backgroundStyle = backgroundElement ? getComputedStyle(backgroundElement) : null) {
+                        }
+                        if (backgroundStyle?.backgroundColor == customColor) {
+                            e.setAttribute(colorName, e.style.color || '');
+                            e.style.color = 'rgb(' + colors.map(color => color / 2).join(', ') + ')';
+                        }
                     }
-                }
+                }, 0);
             }
             // contrast(colors, customColors) < 4.5
             function luminanace(r, g, b) {
