@@ -281,15 +281,11 @@ new MutationObserver(list => {
                     return;
                 }
                 const walker = document.createTreeWalker(e, NodeFilter.SHOW_ELEMENT);
-                for (let node = e; node; node = next(walker)) {
+                for (let node = e; node; node = walker.nextNode()) {
                     doUpdate(node);
                 }
             });
             modified.clear();
-            function next(walker) {
-                const e = walker.nextNode();
-                return modified.has(e) ? walker.nextSibling() : e;
-            }
             function doUpdate(e) {
                 if (!(e instanceof Element)) {
                     return;
