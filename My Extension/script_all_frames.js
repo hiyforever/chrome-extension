@@ -318,7 +318,7 @@ new MutationObserver(list => {
                     }
                 }
                 const colors = style.color.match(/rgb\((\d+), (\d+), (\d+)\)/)?.slice(1, 4);
-                if (colors?.every(color => color >= 128)) {
+                if (colors?.every(color => color >= 128) && (e.innerText || e.value)) {
                     let backgroundStyle = style;
                     for (let backgroundElement = e;
                         backgroundStyle?.backgroundColor == 'rgba(0, 0, 0, 0)';
