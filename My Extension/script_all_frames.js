@@ -314,7 +314,7 @@ new MutationObserver(list => {
                     const customColors = [224, 206, 158];
                     const customColor = 'rgb(' + customColors.join(', ') + ')';
                     const style = getComputedStyle(e);
-                    if (!e.hasAttribute(name) && style.backgroundColor == 'rgb(255, 255, 255)') {
+                    if (style.backgroundColor == 'rgb(255, 255, 255)') {
                         e.setAttribute(name, e.style.backgroundColor || '');
                         e.style.backgroundColor = customColor;
                     }
