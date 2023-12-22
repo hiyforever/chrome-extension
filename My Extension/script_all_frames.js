@@ -314,12 +314,12 @@ new MutationObserver(list => {
                     const customColors = [224, 206, 158];
                     const customColor = 'rgb(' + customColors.join(', ') + ')';
                     const style = getComputedStyle(e);
-                    if (style.backgroundColor == 'rgb(255, 255, 255)') {
+                    if (!e.hasAttribute(name) && style.backgroundColor == 'rgb(255, 255, 255)') {
                         e.setAttribute(name, e.style.backgroundColor || '');
                         e.style.backgroundColor = customColor;
                     }
                     const colors = style.color.match(/rgb\((\d+), (\d+), (\d+)\)/)?.slice(1, 4);
-                    if (colors?.every(color => color >= 128) && (e.innerText || e.value)) {
+                    if (!e.hasAttribute(colorName) && colors?.every(color => color >= 128) && (e.innerText || e.value)) {
                         let backgroundStyle = style;
                         for (let backgroundElement = e;
                             backgroundStyle?.backgroundColor == 'rgba(0, 0, 0, 0)';
