@@ -319,7 +319,7 @@ new MutationObserver(list => {
                         e.style.backgroundColor = customColor;
                     }
                     const colors = style.color.match(/rgb\((\d+), (\d+), (\d+)\)/)?.slice(1, 4);
-                    if (!e.hasAttribute(colorName) && colors?.every(color => color >= 128) && (e.innerText || e.value)) {
+                    if (colors?.every(color => color >= 128) && Array.from(e.childNodes.values()).every(n => n.nodeType == n.TEXT_NODE && n.nodeValue.trim())) {
                         let backgroundStyle = style;
                         for (let backgroundElement = e;
                             backgroundStyle?.backgroundColor == 'rgba(0, 0, 0, 0)';
