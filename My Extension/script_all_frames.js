@@ -290,44 +290,49 @@ new MutationObserver(list => {
                 if (!(e instanceof Element)) {
                     return;
                 }
+                const customColors = [224, 206, 158];
+                const customColor = 'rgb(' + customColors.join(', ') + ')';
                 const name = 'my-extension-background-color';
                 if (e.hasAttribute(name)) {
                     const backgroundColor = e.getAttribute(name);
                     e.removeAttribute(name);
-                    if (backgroundColor) {
-                        e.style.backgroundColor = backgroundColor;
-                    } else {
-                        e.style.removeProperty('background-color');
+                    if (e.style.backgroundColor == customColor) {
+                        if (backgroundColor) {
+                            e.style.backgroundColor = backgroundColor;
+                        } else {
+                            e.style.removeProperty('background-color');
+                        }
                     }
                 }
                 const colorName = 'my-extension-color';
                 if (e.hasAttribute(colorName)) {
-                    const color = e.getAttribute(colorName);
+                    const colors = (e.getAttribute(colorName) || ":").split(':');
                     e.removeAttribute(colorName);
-                    if (color) {
-                        e.style.color = color;
-                    } else {
-                        e.style.removeProperty('color');
+                    if (colors[1] && e.style.color == colors[1]) {
+                        if (colors[0]) {
+                            e.style.color = colors[0];
+                        } else {
+                            e.style.removeProperty('color');
+                        }
                     }
                 }
                 function doColor() {
-                    const customColors = [224, 206, 158];
-                    const customColor = 'rgb(' + customColors.join(', ') + ')';
                     const style = getComputedStyle(e);
                     if (style.backgroundColor == 'rgb(255, 255, 255)') {
                         e.setAttribute(name, e.style.backgroundColor || '');
                         e.style.backgroundColor = customColor;
                     }
                     const colors = style.color.match(/rgb\((\d+), (\d+), (\d+)\)/)?.slice(1, 4);
-                    if (colors?.every(color => color >= 128) && Array.from(e.childNodes.values()).every(n => n.nodeType == n.TEXT_NODE && n.nodeValue.trim())) {
+                    if (!e.hasAttribute(colorName) && colors?.every(color => color >= 128) && Array.from(e.childNodes.values()).some(n => n.nodeType == n.TEXT_NODE && n.nodeValue.trim())) {
                         let backgroundStyle = style;
                         for (let backgroundElement = e;
                             backgroundStyle?.backgroundColor == 'rgba(0, 0, 0, 0)';
                             backgroundElement = backgroundElement.parentElement, backgroundStyle = backgroundElement ? getComputedStyle(backgroundElement) : null) {
                         }
                         if (backgroundStyle?.backgroundColor == customColor) {
-                            e.setAttribute(colorName, e.style.color || '');
-                            e.style.color = 'rgb(' + colors.map(color => Math.floor(color / 2)).join(', ') + ')';
+                            const color = 'rgb(' + colors.map(color => Math.floor(color / 2)).join(', ') + ')';
+                            e.setAttribute(colorName, (e.style.color || '') + ':' + color);
+                            e.style.color = color;
                         }
                     }
                 }
