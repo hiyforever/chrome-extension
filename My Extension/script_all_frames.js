@@ -272,7 +272,7 @@ self.addEventListener('mouseup', e => {
 const modified = new Set();
 new MutationObserver(list => {
     const empty = modified.size <= 0;
-    list.forEach(e => e.addedNodes.forEach(e => modified.add(e.parentNode || e)));
+    list.forEach(e => modified.add(e.target));
     if (empty) {
         setTimeout(() => {
             modified.forEach(e => {
@@ -356,4 +356,4 @@ new MutationObserver(list => {
             }
         }, 0);
     }
-}).observe(document.firstElementChild, { childList: true, subtree: true });
+}).observe(document.firstElementChild, { childList: true, subtree: true, attributeFilter: ['class'] });
