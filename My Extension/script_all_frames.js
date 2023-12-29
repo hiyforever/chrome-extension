@@ -272,7 +272,14 @@ self.addEventListener('mouseup', e => {
 const modified = new Set();
 new MutationObserver(list => {
     const empty = modified.size <= 0;
-    list.forEach(e => modified.add(e.target));
+    list.forEach(e => {
+        if (e.target == document.body &&
+            (e.addedNodes.length || e.removedNodes.length)) {
+            e.addedNodes.forEach(node => modified.add(node));
+            return;
+        }
+        modified.add(e.target);
+    });
     if (empty) {
         setTimeout(() => {
             modified.forEach(e => {
@@ -290,13 +297,16 @@ new MutationObserver(list => {
                 if (!(e instanceof Element)) {
                     return;
                 }
+                const style = getComputedStyle(e);
                 const customColors = [224, 206, 158];
                 const customColor = 'rgb(' + customColors.join(', ') + ')';
+                let changeBackgroundColor;
                 const name = 'my-extension-background-color';
                 if (e.hasAttribute(name)) {
                     const backgroundColor = e.getAttribute(name);
                     e.removeAttribute(name);
                     if (e.style.backgroundColor == customColor) {
+                        changeBackgroundColor = true;
                         if (backgroundColor) {
                             e.style.backgroundColor = backgroundColor;
                         } else {
@@ -304,11 +314,13 @@ new MutationObserver(list => {
                         }
                     }
                 }
+                let changeColor;
                 const colorName = 'my-extension-color';
                 if (e.hasAttribute(colorName)) {
                     const colors = (e.getAttribute(colorName) || ":").split(':');
                     e.removeAttribute(colorName);
                     if (colors[1] && e.style.color == colors[1]) {
+                        changeColor = true;
                         if (colors[0]) {
                             e.style.color = colors[0];
                         } else {
@@ -317,8 +329,7 @@ new MutationObserver(list => {
                     }
                 }
                 function doColor() {
-                    const style = getComputedStyle(e);
-                    if (style.backgroundColor == 'rgb(255, 255, 255)') {
+                    if (!e.hasAttribute(name) && style.backgroundColor == 'rgb(255, 255, 255)') {
                         e.setAttribute(name, e.style.backgroundColor || '');
                         e.style.backgroundColor = customColor;
                     }
@@ -335,9 +346,18 @@ new MutationObserver(list => {
                             e.style.color = color;
                         }
                     }
+                    return e.hasAttribute(name) && e.hasAttribute(colorName) ||
+                        !changeBackgroundColor && !changeColor;
                 }
-                setTimeout(() => doColor(), 0);
-                doColor();
+                if (doColor()) {
+                    return;
+                }
+                let i = 100;
+                const interval = setInterval(() => {
+                    if (doColor() || --i <= 0) {
+                        clearInterval(interval);
+                    }
+                }, 0);
             }
             // contrast(colors, customColors) < 4.5
             function luminanace(r, g, b) {

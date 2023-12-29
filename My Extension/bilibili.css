@@ -18,6 +18,10 @@ p, h3 {
     position: absolute !important;
 }
 
+.right-entry-item--upload {
+    display: none !important;
+}
+
 .bilibili-danmaku {
     font-weight: inherit !important;
 }
