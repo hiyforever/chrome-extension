@@ -277,7 +277,7 @@ new MutationObserver(list => {
         }
         if (e.addedNodes.length && Array.from(e.addedNodes).every(node => {
              if (!(node instanceof Element)) {
-                return false;
+                return true;
             }
             const style = getComputedStyle(node);
             return ['fixed', 'absolute'].includes(style.position);
