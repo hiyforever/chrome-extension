@@ -275,13 +275,7 @@ new MutationObserver(list => {
         if (e.removedNodes.length) {
             return;
         }
-        if (e.addedNodes.length && Array.from(e.addedNodes).every(node => {
-             if (!(node instanceof Element)) {
-                return true;
-            }
-            const style = getComputedStyle(node);
-            return ['fixed', 'absolute'].includes(style.position);
-        })) {
+        if (e.addedNodes.length) {
             e.addedNodes.forEach(node => modified.add(node));
             return;
         }
