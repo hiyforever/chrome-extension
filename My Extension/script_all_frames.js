@@ -273,8 +273,16 @@ const modified = new Set();
 new MutationObserver(list => {
     const empty = modified.size <= 0;
     list.forEach(e => {
-        if (e.target == document.body &&
-            (e.addedNodes.length || e.removedNodes.length)) {
+        if (e.removedNodes.length) {
+            return;
+        }
+        if (e.addedNodes.length && Array.from(e.addedNodes).every(node => {
+             if (!(node instanceof Element)) {
+                return false;
+            }
+            const style = getComputedStyle(node);
+            return ['fixed', 'absolute'].includes(style.position);
+        })) {
             e.addedNodes.forEach(node => modified.add(node));
             return;
         }
