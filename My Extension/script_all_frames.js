@@ -222,9 +222,7 @@ self.addEventListener('mouseup', e => {
                 }
             }).filter(item => item).sort((item1, item2) => item1.id - item2.id);
             let actionItem;
-            if (items.length == 1) {
-                actionItem = items[0];
-            } else if (items.length > 1) {
+            if (items.length > 0) {
                 for (let target = e.target; target; target = target?.parentNode) {
                     for (const item of items) {
                         if (target.contains(item.element)) {
@@ -232,6 +230,9 @@ self.addEventListener('mouseup', e => {
                             target = undefined;
                             break;
                         }
+                    }
+                    if (target && getComputedStyle(target).position == 'fixed') {
+                        break;
                     }
                 }
             }
