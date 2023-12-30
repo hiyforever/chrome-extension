@@ -208,17 +208,15 @@ self.addEventListener('mouseup', e => {
         case 3:
         case 4:
             const items = Array.from(document.querySelectorAll('*')).map(element => {
+                if (!element.checkVisibility()) {
+                    return;
+                }
+                const style = getComputedStyle(element);
+                if (style.cursor == 'not-allowed' || style.pointerEvents == 'none' || style.opacity <= 0) {
+                    return;
+                }
                 for (const i in matchActions) {
                     if (matchActions[i].isMatch(element, e.button)) {
-                        for (let current = element; current; current = current.parentElement) {
-                            if (!current.checkVisibility()) {
-                                return;
-                            }
-                            const style = getComputedStyle(current);
-                            if (style.cursor == 'not-allowed' || style.pointerEvents == 'none' || style.opacity <= 0) {
-                                return;
-                            }
-                        }
                         return { id: i, element: element };
                     }
                 }
