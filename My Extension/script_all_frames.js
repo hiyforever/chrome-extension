@@ -346,8 +346,8 @@ new MutationObserver(list => {
                             e.style.color = color;
                         }
                     }
-                    return e.hasAttribute(name) && e.hasAttribute(colorName) ||
-                        !changeBackgroundColor && !changeColor;
+                    return (e.hasAttribute(name) || !changeBackgroundColor) &&
+                        (e.hasAttribute(colorName) || !changeColor);
                 }
                 if (doColor()) {
                     return;
