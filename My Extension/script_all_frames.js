@@ -280,6 +280,9 @@ new MutationObserver(list => {
             e.addedNodes.forEach(node => modified.add(node));
             return;
         }
+        if (e.target == document.body && e.attributeName == 'class') {
+            return;
+        }
         modified.add(e.target);
     });
     if (empty) {
