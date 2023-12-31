@@ -190,7 +190,8 @@ const matchActions = [{
             return false;
         }
         if (![element.textContent, element.value]
-            .some(text => text.trim() != '' && text.replaceAll(/取消|取 消|关闭|关 闭/g, '').trim() == '')) {
+            .some(text => text.trim() != '' && text.replaceAll(/取消|取 消|关闭|关 闭/g, '').trim() == '') &&
+            !Array.from(element.classList || []).some(name => name.endsWith('-close'))) {
             return false;
         }
         for (let current = element; current; current = current.parentElement) {
