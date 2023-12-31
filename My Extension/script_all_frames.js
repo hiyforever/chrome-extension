@@ -307,7 +307,7 @@ new MutationObserver(list => {
                 const customColor = 'rgb(' + customColors.join(', ') + ')';
                 let changeBackgroundColor;
                 const name = 'my-extension-background-color';
-                if (e.hasAttribute(name)) {
+                if (!['text', 'textarea'].includes(e.type) && e.hasAttribute(name)) {
                     const backgroundColor = e.getAttribute(name);
                     e.removeAttribute(name);
                     if (e.style.backgroundColor == customColor) {
