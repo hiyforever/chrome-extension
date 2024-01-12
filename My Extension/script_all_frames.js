@@ -281,6 +281,9 @@ new MutationObserver(list => {
             e.addedNodes.forEach(node => modified.add(node));
             return;
         }
+        if (e.target == document.body && e.attributeName == 'class') {
+            return;
+        }
         modified.add(e.target);
     });
     if (empty) {
@@ -305,7 +308,7 @@ new MutationObserver(list => {
                 const customColor = 'rgb(' + customColors.join(', ') + ')';
                 let changeBackgroundColor;
                 const name = 'my-extension-background-color';
-                if (e.hasAttribute(name)) {
+                if (!['text', 'textarea'].includes(e.type) && e.hasAttribute(name)) {
                     const backgroundColor = e.getAttribute(name);
                     e.removeAttribute(name);
                     if (e.style.backgroundColor == customColor) {
