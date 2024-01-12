@@ -186,11 +186,13 @@ const matchActions = [{
     }
 }, {
     isMatch: (element, button) => {
-        if (button != 3 || 'BUTTON' != element.tagName && 'button' != element.type) {
+        if (button != 3 || !['BUTTON', 'I'].includes(element.tagName) && 'button' != element.type) {
             return false;
         }
         if (![element.textContent, element.value]
-            .some(text => text.trim() != '' && text.replaceAll(/取消|取 消|关闭|关 闭/g, '').trim() == '')) {
+            .some(text => text && text.trim() != '' && text.replaceAll(/取消|取 消|关闭|关 闭/g, '').trim() == '') &&
+            !Array.from(element.classList || []).some(name => name.endsWith('-close') || name.includes('-close_')) &&
+            element.getAttribute('aria-label') != "Close") {
             return false;
         }
         for (let current = element; current; current = current.parentElement) {
