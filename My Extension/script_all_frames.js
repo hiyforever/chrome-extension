@@ -340,10 +340,10 @@ new MutationObserver(list => {
                         e.style.backgroundColor = customColor;
                     }
                     const colors = style.color.match(/rgb\((\d+), (\d+), (\d+)\)/)?.slice(1, 4);
-                    if (!e.hasAttribute(colorName) && colors?.every(color => color >= 128) && Array.from(e.childNodes.values()).some(n => n.nodeType == n.TEXT_NODE && n.nodeValue.trim())) {
+                    if (!e.hasAttribute(colorName) && colors?.every(color => color >= 100 && color < 200) && Array.from(e.childNodes.values()).some(n => n.nodeType == n.TEXT_NODE && n.nodeValue.trim())) {
                         let backgroundStyle = style;
                         for (let backgroundElement = e;
-                            backgroundStyle?.backgroundColor == 'rgba(0, 0, 0, 0)';
+                            !['absolute', 'fixed'].includes(backgroundStyle.position) && backgroundStyle?.backgroundColor == 'rgba(0, 0, 0, 0)';
                             backgroundElement = backgroundElement.parentElement, backgroundStyle = backgroundElement ? getComputedStyle(backgroundElement) : null) {
                         }
                         if (backgroundStyle?.backgroundColor == customColor) {
