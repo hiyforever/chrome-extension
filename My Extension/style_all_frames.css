@@ -2,7 +2,7 @@
     font-family: initial !important;
 }
 
-* {
+:not(.ace_editor *) {
     font-family: initial;
 }
 
