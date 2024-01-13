@@ -57,6 +57,6 @@ p, h3 {
     display: none !important;
 }
 
-.bilibili-player-video-popup, .bpx-player-dialog-wrap {
+.bilibili-player-video-popup, .bpx-player-dialog-wrap, .bili-guide-all {
     display: none !important;
 }
