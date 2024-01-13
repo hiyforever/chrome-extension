@@ -55,7 +55,6 @@ chrome.webNavigation.onDOMContentLoaded.addListener(details => {
                                         overflow: hidden;
                                         text-align: center;
                                         pointer-events: none;
-                                        font-family:Lolita!important;
                                     }
                                     .danmuVideo span {
                                         opacity: .5;
