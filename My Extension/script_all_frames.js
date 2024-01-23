@@ -340,16 +340,19 @@ new MutationObserver(list => {
                         e.style.backgroundColor = customColor;
                     }
                     const colors = style.color.match(/rgb\((\d+), (\d+), (\d+)\)/)?.slice(1, 4);
-                    if (!e.hasAttribute(colorName) && colors?.every(color => color >= 100 && color < 200) && Array.from(e.childNodes.values()).some(n => n.nodeType == n.TEXT_NODE && n.nodeValue.trim())) {
-                        let backgroundStyle = style;
-                        for (let backgroundElement = e;
-                            !['absolute', 'fixed'].includes(backgroundStyle?.position) && backgroundStyle?.backgroundColor == 'rgba(0, 0, 0, 0)';
-                            backgroundElement = backgroundElement.parentElement, backgroundStyle = backgroundElement ? getComputedStyle(backgroundElement) : null) {
-                        }
-                        if (backgroundStyle?.backgroundColor == customColor) {
-                            const color = 'rgb(' + colors.map(color => Math.floor(color / 2)).join(', ') + ')';
-                            e.setAttribute(colorName, (e.style.color || '') + ':' + color);
-                            e.style.color = color;
+                    if (!e.hasAttribute(colorName) && colors && Array.from(e.childNodes.values()).some(n => n.nodeType == n.TEXT_NODE && n.nodeValue.trim())) {
+                        const compare = contrast(colors, customColors);
+                        if (compare.match) {
+                            let backgroundStyle = style;
+                            for (let backgroundElement = e;
+                                !['absolute', 'fixed'].includes(backgroundStyle?.position) && backgroundStyle?.backgroundColor == 'rgba(0, 0, 0, 0)';
+                                backgroundElement = backgroundElement.parentElement, backgroundStyle = backgroundElement ? getComputedStyle(backgroundElement) : null) {
+                            }
+                            if (backgroundStyle?.backgroundColor == customColor) {
+                                const color = 'rgb(' + colors.map(color => Math.min(Math.floor(color * compare.scale), 255)).join(', ') + ')';
+                                e.setAttribute(colorName, (e.style.color || '') + ':' + color);
+                                e.style.color = color;
+                            }
                         }
                     }
                     return (e.hasAttribute(name) || !changeBackgroundColor) &&
@@ -365,7 +368,6 @@ new MutationObserver(list => {
                     }
                 }, 0);
             }
-            // contrast(colors, customColors) < 4.5
             function luminanace(r, g, b) {
                 const c = [r, g, b].map(v => {
                     v /= 255;
@@ -378,7 +380,14 @@ new MutationObserver(list => {
                 const lum2 = luminanace(rgb2[0], rgb2[1], rgb2[2]);
                 const brightest = Math.max(lum1, lum2);
                 const darkest = Math.min(lum1, lum2);
-                return (brightest + 0.05) / (darkest + 0.05);
+                const ratio = (brightest + 0.05) / (darkest + 0.05);
+                const brighter = lum1 > lum2;
+                const max = brighter ? 1.5 : 2;
+                let scale = Math.pow(ratio / max, 1 / 2.4);
+                if (!brighter) {
+                    scale = 1 / scale;
+                }
+                return { match: ratio < max, scale: scale };
             }
         }, 0);
     }
