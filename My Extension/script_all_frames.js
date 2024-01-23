@@ -383,10 +383,7 @@ new MutationObserver(list => {
                 const ratio = (brightest + 0.05) / (darkest + 0.05);
                 const brighter = lum1 > lum2;
                 const max = brighter ? 1.5 : 2;
-                let scale = Math.pow(ratio / max, 1 / 2.4);
-                if (!brighter) {
-                    scale = 1 / scale;
-                }
+                const scale = brighter ? Math.pow(max / ratio, 1 / 2.4) : ratio / max;
                 return { match: ratio < max, scale: scale };
             }
         }, 0);
