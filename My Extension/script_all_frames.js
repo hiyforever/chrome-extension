@@ -67,6 +67,7 @@ self.addEventListener('copy', evt => {
     element.style.whiteSpace = 'pre-wrap';
     element.style.overflowWrap = 'anywhere';
     element.setAttribute('tabindex', 0);
+    ['contextmenu', 'selectstart'].forEach(event => element.addEventListener(event, e => e.stopPropagation(), true));
     const listener = e => {
         if (e.target == element || mouseoverElement == element) {
             return;
