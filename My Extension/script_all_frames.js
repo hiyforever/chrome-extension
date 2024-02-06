@@ -222,7 +222,7 @@ self.addEventListener('mouseup', e => {
                 continue;
             }
             const style = getComputedStyle(element);
-            if (style.cursor == 'not-allowed' || style.pointerEvents == 'none' || style.opacity <= 0) {
+            if (style.cursor == 'not-allowed' || element.tagName != 'VIDEO' && style.pointerEvents == 'none' || style.opacity <= 0) {
                 continue;
             }
             if (element != target && style.position == 'fixed') {
