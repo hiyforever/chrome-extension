@@ -207,43 +207,44 @@ const matchActions = [{
     action: (element, button) => element.click()
 }];
 self.addEventListener('mouseup', e => {
-    switch (e.button) {
-        case 3:
-        case 4:
-            const items = Array.from(document.querySelectorAll('*')).map(element => {
-                if (!element.checkVisibility()) {
+    if (![3, 4].includes(e.button)) {
+        return;
+    }
+    for (let preTarget, target = e.target; target; preTarget = target, target = target.parentElement || target.ownerDocument.defaultView.frameElement) {
+        const walker = document.createTreeWalker(target, NodeFilter.SHOW_ELEMENT);
+        for (let element = target; element; element = walker.nextNode()) {
+            if (element == preTarget) {
+                while (walker.lastChild()) {
+                }
+                continue;
+            }
+            if (!element.checkVisibility()) {
+                continue;
+            }
+            const style = getComputedStyle(element);
+            if (style.cursor == 'not-allowed' || style.pointerEvents == 'none' || style.opacity <= 0) {
+                continue;
+            }
+            if (element != target && style.position == 'fixed') {
+                while (walker.lastChild()) {
+                }
+                continue;
+            }
+            for (const action of matchActions) {
+                if (action.isMatch(element, e.button)) {
+                    action.action(element, e.button);
+                    e.preventDefault();
                     return;
-                }
-                const style = getComputedStyle(element);
-                if (style.cursor == 'not-allowed' || style.pointerEvents == 'none' || style.opacity <= 0) {
-                    return;
-                }
-                for (const i in matchActions) {
-                    if (matchActions[i].isMatch(element, e.button)) {
-                        return { id: i, element: element };
-                    }
-                }
-            }).filter(item => item).sort((item1, item2) => item1.id - item2.id);
-            let actionItem;
-            if (items.length > 0) {
-                for (let target = e.target; target; target = target?.parentNode) {
-                    for (const item of items) {
-                        if (target.contains(item.element)) {
-                            actionItem = item;
-                            target = undefined;
-                            break;
-                        }
-                    }
-                    if (target && getComputedStyle(target).position == 'fixed') {
-                        break;
-                    }
                 }
             }
-            if (actionItem) {
-                matchActions[actionItem.id].action(actionItem.element, e.button);
+            if (style.position == 'fixed') {
                 e.preventDefault();
+                return;
             }
-            break;
+        }
+    }
+    if (self != top) {
+        e.preventDefault();
     }
 });
 let lastSelection;
