@@ -237,10 +237,10 @@ self.addEventListener('mouseup', e => {
                     return;
                 }
             }
-            if (style.position == 'fixed') {
-                e.preventDefault();
-                return;
-            }
+        }
+        if (getComputedStyle(target).position == 'fixed') {
+            e.preventDefault();
+            return;
         }
     }
     if (self != top) {
