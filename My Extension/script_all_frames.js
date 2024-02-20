@@ -211,26 +211,26 @@ self.addEventListener('mouseup', e => {
         return;
     }
     for (let preTarget, target = e.target; target; preTarget = target, target = target.parentElement || target.ownerDocument.defaultView.frameElement) {
-        const walker = document.createTreeWalker(target, NodeFilter.SHOW_ELEMENT);
-        for (let element = target; element; element = walker.nextNode()) {
-            if (element == preTarget) {
-                while (walker.lastChild()) {
+        for (const action of matchActions) {
+            const walker = document.createTreeWalker(target, NodeFilter.SHOW_ELEMENT);
+            for (let element = target; element; element = walker.nextNode()) {
+                if (element == preTarget) {
+                    while (walker.lastChild()) {
+                    }
+                    continue;
                 }
-                continue;
-            }
-            if (!element.checkVisibility()) {
-                continue;
-            }
-            const style = getComputedStyle(element);
-            if (style.cursor == 'not-allowed' || element.tagName != 'VIDEO' && style.pointerEvents == 'none' || style.opacity <= 0) {
-                continue;
-            }
-            if (element != target && style.position == 'fixed') {
-                while (walker.lastChild()) {
+                if (!element.checkVisibility()) {
+                    continue;
                 }
-                continue;
-            }
-            for (const action of matchActions) {
+                const style = getComputedStyle(element);
+                if (style.cursor == 'not-allowed' || element.tagName != 'VIDEO' && style.pointerEvents == 'none' || style.opacity <= 0) {
+                    continue;
+                }
+                if (element != target && style.position == 'fixed') {
+                    while (walker.lastChild()) {
+                    }
+                    continue;
+                }
                 if (action.isMatch(element, e.button)) {
                     action.action(element, e.button);
                     e.preventDefault();
