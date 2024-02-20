@@ -211,32 +211,42 @@ self.addEventListener('mouseup', e => {
         return;
     }
     for (let preTarget, target = e.target; target; preTarget = target, target = target.parentElement || target.ownerDocument.defaultView.frameElement) {
-        for (const action of matchActions) {
-            const walker = document.createTreeWalker(target, NodeFilter.SHOW_ELEMENT);
-            for (let element = target; element; element = walker.nextNode()) {
-                if (element == preTarget) {
-                    while (walker.lastChild()) {
-                    }
-                    continue;
+        let no = matchActions.length, result;
+        const walker = document.createTreeWalker(target, NodeFilter.SHOW_ELEMENT);
+        for (let element = target; element; element = walker.nextNode()) {
+            if (element == preTarget) {
+                while (walker.lastChild()) {
                 }
-                if (!element.checkVisibility()) {
-                    continue;
+                continue;
+            }
+            if (!element.checkVisibility()) {
+                continue;
+            }
+            const style = getComputedStyle(element);
+            if (style.cursor == 'not-allowed' || element.tagName != 'VIDEO' && style.pointerEvents == 'none' || style.opacity <= 0) {
+                continue;
+            }
+            if (element != target && style.position == 'fixed') {
+                while (walker.lastChild()) {
                 }
-                const style = getComputedStyle(element);
-                if (style.cursor == 'not-allowed' || element.tagName != 'VIDEO' && style.pointerEvents == 'none' || style.opacity <= 0) {
-                    continue;
-                }
-                if (element != target && style.position == 'fixed') {
-                    while (walker.lastChild()) {
-                    }
-                    continue;
-                }
+                continue;
+            }
+            for (let i = 0; i < no; i++) {
+                const action = matchActions[i];
                 if (action.isMatch(element, e.button)) {
-                    action.action(element, e.button);
-                    e.preventDefault();
-                    return;
+                    no = i;
+                    result = () => action.action(element, e.button);
+                    break;
                 }
             }
+            if (no <= 0) {
+                break;
+            }
+        }
+        if (result) {
+            result();
+            e.preventDefault();
+            return;
         }
         if (getComputedStyle(target).position == 'fixed') {
             e.preventDefault();
