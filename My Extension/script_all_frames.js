@@ -21,10 +21,14 @@ self.addEventListener('keydown', e => {
 });
 function extractElementCopyData(e) {
     return {
-        'text/plain': e.innerText?.trim?.() || e.value?.trim?.() ||
-            e.src?.trim?.() || e.href?.trim?.() || e.placeholder?.trim?.() || '',
+        'text/plain': trim(e.innerText) || trim(e.value) ||
+            trim(e.src) || trim(e.href) || trim(e.placeholder) || '',
         'text/html': e.outerHTML,
     };
+
+    function trim(t) {
+        return t?.replace?.(/^[\s\u200B-\u200D\uFEFF]+|[\s\u200B-\u200D\uFEFF]+$/g, '');
+    }
 }
 self.addEventListener('copy', evt => {
     let text;
