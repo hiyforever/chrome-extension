@@ -171,6 +171,26 @@ const matchActions = [{
     action: (element, button) => element.click()
 }, {
     isMatch: (element, button) => {
+        const child = element.firstElementChild;
+        if (element.children.length != 1 || child.tagName != 'svg' || !['LI'].includes(element.tagName)) {
+            return false;
+        }
+        let matchText;
+        switch (button) {
+            case 3:
+                matchText = '-prev';
+                break;
+            case 4:
+                matchText = '-next';
+                break;
+            default:
+                return false;
+        }
+        return element.getAttribute('data-testid')?.endsWith(matchText);
+    },
+    action: (element, button) => element.click()
+}, {
+    isMatch: (element, button) => {
         const child = element.firstElementChild?.firstElementChild;
         if (element.children.length != 1 || element.firstElementChild.children.length != 1 || child.tagName != 'svg' || !['LI'].includes(element.tagName)) {
             return false;
