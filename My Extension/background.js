@@ -550,16 +550,27 @@ chrome.webNavigation.onDOMContentLoaded.addListener(() => {
         { hostEquals: 'www.dmh8.com', pathPrefix: '/player' },
     ]
 });
-const proxyPathSupportHost = ['10.168.1.1'];
+const proxyPathDefaultHost = '10.168.1.1';
+const proxyPathSupportHost = [];
 for (let i = 2; i < 10; i++) {
     proxyPathSupportHost.push(`192.168.1.${i}`);
 }
+proxyPathSupportHost.push(proxyPathDefaultHost);
 const proxyPathName = navigator.userAgentData.brands.some(b => b.brand == 'Microsoft Edge') ? 'proxy_all' : 'proxy';
+const controller = new AbortController();
 for (let proxyPathHost of proxyPathSupportHost) {
     const proxyUrl = `http://${proxyPathHost}/cgi-bin/${proxyPathName}.pac`;
-    fetch(proxyUrl, { method: 'head' }).then(r => {
+    fetch(proxyUrl, {
+        method: 'head',
+        signal: controller.signal,
+    }).then(r => {
         if (!r.ok) {
             return;
+        }
+        if (proxyPathDefaultHost == proxyPathHost) {
+            setTimeout(() => controller.abort(`find ${proxyPathHost}`), 100);
+        } else {
+            controller.abort(`find ${proxyPathHost}`);
         }
         chrome.proxy.settings.set({
             value: {
@@ -568,6 +579,7 @@ for (let proxyPathHost of proxyPathSupportHost) {
             }, scope: 'regular'
         });
     });
+    setTimeout(() => controller.abort('timeout'), 1000);
 }
 
 if (navigator.userAgentData.brands.some(b => b.brand == 'Microsoft Edge')) {
