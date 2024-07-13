@@ -41,6 +41,10 @@ p, h3 {
     padding-top: calc(var(--player-height) - max(100vh * 632 / 754, 562px));
 }
 
+.recommended-container_floor-aside .container>*:nth-of-type(n + 8) {
+    margin-top: 0 !important;
+}
+
 #playerWrap {
     height: calc(var(--player-height)) !important;
 }

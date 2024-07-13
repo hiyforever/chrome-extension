@@ -550,13 +550,25 @@ chrome.webNavigation.onDOMContentLoaded.addListener(() => {
         { hostEquals: 'www.dmh8.com', pathPrefix: '/player' },
     ]
 });
-// if (!navigator.userAgentData.brands.some(b => b.brand == 'Microsoft Edge'))
-chrome.proxy.settings.set({
-    value: {
-        mode: "pac_script",
-        pacScript: { url: navigator.userAgentData.brands.some(b => b.brand == 'Microsoft Edge') ? 'http://10.168.1.1/proxy_all.pac' : 'http://10.168.1.1/proxy.pac' }
-    }, scope: 'regular'
-});
+const proxyPathSupportHost = ['10.168.1.1'];
+for (let i = 2; i < 10; i++) {
+    proxyPathSupportHost.push(`192.168.1.${i}`);
+}
+const proxyPathName = navigator.userAgentData.brands.some(b => b.brand == 'Microsoft Edge') ? 'proxy_all' : 'proxy';
+for (let proxyPathHost of proxyPathSupportHost) {
+    const proxyUrl = `http://${proxyPathHost}/cgi-bin/${proxyPathName}.pac`;
+    fetch(proxyUrl, { method: 'head' }).then(r => {
+        if (!r.ok) {
+            return;
+        }
+        chrome.proxy.settings.set({
+            value: {
+                mode: "pac_script",
+                pacScript: { url: proxyUrl }
+            }, scope: 'regular'
+        });
+    });
+}
 
 if (navigator.userAgentData.brands.some(b => b.brand == 'Microsoft Edge')) {
     const tabIdList = new Set();
