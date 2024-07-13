@@ -21,10 +21,14 @@ self.addEventListener('keydown', e => {
 });
 function extractElementCopyData(e) {
     return {
-        'text/plain': e.innerText?.trim?.() || e.value?.trim?.() ||
-            e.src?.trim?.() || e.href?.trim?.() || e.placeholder?.trim?.() || '',
+        'text/plain': trim(e.innerText) || trim(e.value) ||
+            trim(e.src) || trim(e.href) || trim(e.placeholder) || '',
         'text/html': e.outerHTML,
     };
+
+    function trim(t) {
+        return t?.replace?.(/^[\s\u200B-\u200D\uFEFF]+|[\s\u200B-\u200D\uFEFF]+$/g, '');
+    }
 }
 self.addEventListener('copy', evt => {
     let text;
@@ -163,6 +167,26 @@ const matchActions = [{
                 return false;
         }
         return element.getAttribute('rel') == matchText;
+    },
+    action: (element, button) => element.click()
+}, {
+    isMatch: (element, button) => {
+        const child = element.firstElementChild;
+        if (element.children.length != 1 || child.tagName != 'svg' || !['LI'].includes(element.tagName)) {
+            return false;
+        }
+        let matchText;
+        switch (button) {
+            case 3:
+                matchText = '-prev';
+                break;
+            case 4:
+                matchText = '-next';
+                break;
+            default:
+                return false;
+        }
+        return element.getAttribute('data-testid')?.endsWith(matchText);
     },
     action: (element, button) => element.click()
 }, {
