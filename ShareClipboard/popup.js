@@ -1,17 +1,4 @@
-
-const option = {
-    iceServers: [{
-        urls: [
-            'stun:stun.l.google.com:19302',
-            'stun:stun1.l.google.com:19302',
-            'stun:stun2.l.google.com:19302',
-            'stun:stun3.l.google.com:19302',
-            'stun:stun4.l.google.com:19302',
-            'stun:stun.services.mozilla.com'
-        ]
-    }, { url: 'turn:turn.bistri.com', username: 'homeo', credential: 'homeo' }]
-}
-const peer = new Peer(myId, option);
+const peer = new Peer(pcId);
 peer.on('connection', conn => onConnect(conn));
 peer.on('open', () => onConnect(peer.connect(toId)));
 function onConnect(conn) {
