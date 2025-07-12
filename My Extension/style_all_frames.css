@@ -1,11 +1,11 @@
 input,
 textarea,
-:not(:empty, :before, .ace_editor, .ace_editor *, i[class*=-icon]) {
-    font-family: initial !important;
+:not(:empty, .ace_editor, .ace_editor *, i[class*=-icon], div[class*=-icon]) {
+    font-family: Lolita !important;
 }
 
 :not(.ace_scroller, .ace_scroller *) {
-    font-family: initial;
+    font-family: Lolita;
 }
 
 ::-webkit-scrollbar {

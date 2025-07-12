@@ -1,12 +1,13 @@
-const visitTabs = {};
 chrome.commands.onCommand.addListener((command, tab) => {
     switch (command) {
         case 'switch-tab':
-            const tabs = Array.from(visitTabs[tab.windowId] ?? []);
-            const preVisitTab = tabs[tabs.length - 2];
-            if (preVisitTab) {
-                chrome.tabs.update(preVisitTab, { active: true });
-            }
+            getTabs(tab.windowId).then(tabs => {
+                tabs = Array.from(tabs);
+                const preVisitTab = tabs[tabs.length - 2];
+                if (preVisitTab) {
+                    chrome.tabs.update(preVisitTab, { active: true });
+                }
+            });
             break;
     }
 });
@@ -15,12 +16,29 @@ chrome.tabs.onActivated.addListener(info => {
     if (tabId < 0) {
         return;
     }
-    let tabs = visitTabs[info.windowId];
-    if (!tabs) {
-        visitTabs[info.windowId] = tabs = new Set();
-    }
-    tabs.delete(tabId);
-    tabs.add(info.tabId);
+    getTabs(info.windowId).then(tabs => {
+        tabs.delete(tabId);
+        tabs.add(tabId);
+        setTabs(info.windowId, tabs);
+    });
 });
-chrome.tabs.onRemoved.addListener((tabId, info) => visitTabs[info.windowId]?.delete(tabId));
-chrome.windows.onRemoved.addListener(windowId => delete visitTabs[windowId]);
+chrome.tabs.onRemoved.addListener((tabId, info) => getTabs(info.windowId).then(tabs => {
+    tabs.delete(tabId);
+    setTabs(info.windowId, tabs);
+}));
+chrome.windows.onRemoved.addListener(windowId => removeTabs(windowId));
+
+function getTabs(windowId) {
+    const key = String(windowId);
+    return chrome.storage.session.get(key).then(r => new Set(r[key] ?? []));
+}
+
+function setTabs(windowId, tabs) {
+    const result = {};
+    result[String(windowId)] = Array.from(tabs);
+    return chrome.storage.session.set(result);
+}
+
+function removeTabs(windowId) {
+    return chrome.storage.session.remove(String(windowId));
+}

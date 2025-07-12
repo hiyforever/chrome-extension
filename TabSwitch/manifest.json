@@ -1,8 +1,6 @@
 {
     "background": {
-        "scripts": [
-            "background.js"
-        ]
+        "service_worker": "background.js"
     },
     "commands": {
         "switch-tab": {
@@ -15,7 +13,10 @@
     "icons": {
         "48": "icon.png"
     },
+    "permissions": [
+        "storage"
+    ],
     "name": "TabSwitch",
     "version": "1.0",
-    "manifest_version": 2
+    "manifest_version": 3
 }

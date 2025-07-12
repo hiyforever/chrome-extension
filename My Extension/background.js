@@ -5,6 +5,9 @@ chrome.commands.onCommand.addListener((command, tab) => {
             break;
     }
 });
+['standard', 'serif', 'sansserif', 'fixed'].forEach(font => {
+    chrome.fontSettings.setFont({ genericFamily: font, script: 'Zyyy', fontId: 'Lolita' });
+});
 let removing = false;
 chrome.windows.onCreated.addListener(window => chrome.windows.getAll({ populate: true }, windows => {
     if (removing) {
@@ -44,9 +47,9 @@ chrome.tabs.onUpdated.addListener(() => {
 chrome.runtime.onInstalled.addListener(() => {
     chrome.contextMenus.create(copyTextContextMenu);
     chrome.windows.getAll({ populate: true }, windows => windows.forEach(window => window.tabs.forEach(tab => {
-        chrome.tabs.executeScript(tab.id, {
-            allFrames: true,
-            file: 'runtime_scripts.js'
+        chrome.scripting.executeScript({
+            target: { tabId: tab.id, allFrames: true },
+            files: ['runtime_scripts.js']
         });
     })));
 });
@@ -70,10 +73,12 @@ chrome.runtime.onMessage.addListener(message => {
             chrome.contextMenus.update(copyTextContextMenu.id, { title: '复制“' + text + '”' });
             break;
         case 'selectionchange':
-            const MD5 = string => {
+            var MD5 = function (string) {
+
                 function RotateLeft(lValue, iShiftBits) {
                     return (lValue << iShiftBits) | (lValue >>> (32 - iShiftBits));
                 }
+
                 function AddUnsigned(lX, lY) {
                     var lX4, lY4, lX8, lY8, lResult;
                     lX8 = (lX & 0x80000000);
@@ -267,7 +272,7 @@ chrome.runtime.onMessage.addListener(message => {
                 var temp = WordToHex(a) + WordToHex(b) + WordToHex(c) + WordToHex(d);
 
                 return temp.toLowerCase();
-            };
+            }
             var appid = '20151211000007653';
             var key = 'IFJB6jBORFuMmVGDRude';
             var salt = new Date().getTime();
@@ -281,48 +286,52 @@ chrome.runtime.onMessage.addListener(message => {
                     }
                     chrome.i18n.detectLanguage(text, info => {
                         if (info.languages.some(l => l.language == 'zh')) {
-                            chrome.tabs.executeScript({
-                                allFrames: true,
-                                code: '(' + function (source, target, x, y) {
-                                    if (document.getSelection().toString() != unescape(source)) {
+                            function show(source, target, x, y) {
+                                if (document.getSelection().toString() != unescape(source)) {
+                                    return;
+                                }
+                                const element = document.createElement('pre');
+                                element.innerText = unescape(target).trim();
+                                element.style.width = 'initial';
+                                element.style.height = 'initial';
+                                element.style.maxWidth = '30em';
+                                element.style.maxHeight = '20em';
+                                element.style.overflow = 'auto';
+                                element.style.textAlign = 'initial';
+                                element.style.position = 'absolute';
+                                element.style.left = x + 5 + 'px';
+                                element.style.top = y + 'px';
+                                element.style.zIndex = Number.MAX_SAFE_INTEGER;
+                                element.style.backgroundColor = 'white';
+                                element.style.border = '1px solid rgba(0,0,0,.2)';
+                                element.style.boxShadow = '0 2px 4px rgba(0,0,0,.2)';
+                                element.style.margin = 'initial';
+                                element.style.padding = '5px 8px';
+                                element.style.outline = 'none';
+                                element.style.font = 'initial';
+                                element.style.color = 'initial';
+                                element.style.whiteSpace = 'pre-wrap';
+                                element.style.overflowWrap = 'anywhere';
+                                element.setAttribute('tabindex', 0);
+                                const listener = e => {
+                                    if (e.target == element || mouseoverElement == element) {
                                         return;
                                     }
-                                    const element = document.createElement('pre');
-                                    element.innerText = unescape(target).trim();
-                                    element.style.width = 'initial';
-                                    element.style.height = 'initial';
-                                    element.style.maxWidth = '30em';
-                                    element.style.maxHeight = '20em';
-                                    element.style.overflow = 'auto';
-                                    element.style.textAlign = 'initial';
-                                    element.style.position = 'absolute';
-                                    element.style.left = x + 5 + 'px';
-                                    element.style.top = y + 'px';
-                                    element.style.zIndex = Number.MAX_SAFE_INTEGER;
-                                    element.style.backgroundColor = 'white';
-                                    element.style.border = '1px solid rgba(0,0,0,.2)';
-                                    element.style.boxShadow = '0 2px 4px rgba(0,0,0,.2)';
-                                    element.style.margin = 'initial';
-                                    element.style.padding = '5px 8px';
-                                    element.style.outline = 'none';
-                                    element.style.font = 'initial';
-                                    element.style.color = 'initial';
-                                    element.style.whiteSpace = 'pre-wrap';
-                                    element.style.overflowWrap = 'anywhere';
-                                    element.setAttribute('tabindex', 0);
-                                    const listener = e => {
-                                        if (e.target == element || mouseoverElement == element) {
-                                            return;
-                                        }
-                                        removeEventListener('mousedown', listener);
-                                        removeEventListener('keydown', listener);
-                                        element.remove();
-                                    };
-                                    element.onblur = listener;
-                                    addEventListener('mousedown', listener);
-                                    addEventListener('keydown', listener);
-                                    document.body.append(element);
-                                } + ')("' + escape(message.data) + '","' + escape(text) + '",' + message.x + ',' + message.y + ')'
+                                    removeEventListener('mousedown', listener);
+                                    removeEventListener('keydown', listener);
+                                    element.remove();
+                                };
+                                element.onblur = listener;
+                                addEventListener('mousedown', listener);
+                                addEventListener('keydown', listener);
+                                document.body.append(element);
+                            }
+                            chrome.tabs.query({ active: true, currentWindow: true }).then(([tab]) => {
+                                chrome.scripting.executeScript({
+                                    target: {tabId: tab.id, allFrames: true },
+                                    func: show,
+                                    args: [escape(message.data), escape(text), message.x, message.y],
+                                });
                             });
                         }
                     });

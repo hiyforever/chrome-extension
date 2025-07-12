@@ -13,3 +13,15 @@ const sendContextmenuMessage = e => {
     }
 };
 sendContextmenuEvents.forEach(event => self.addEventListener(event, sendContextmenuMessage));
+
+function extractElementCopyData(e) {
+    return {
+        'text/plain': trim(e.innerText) || trim(e.value) ||
+            trim(e.src) || trim(e.href) || trim(e.placeholder) || '',
+        'text/html': e.outerHTML,
+    };
+
+    function trim(t) {
+        return t?.replace?.(/^[\s\u200B-\u200D\uFEFF]+|[\s\u200B-\u200D\uFEFF]+$/g, '');
+    }
+}

@@ -142,10 +142,7 @@
         }
     ],
     "background": {
-        "scripts": [
-            "background.js"
-        ],
-        "persistent": false
+        "service_worker": "background.js"
     },
     "commands": {
         "duplicate-tab": {
@@ -159,17 +156,22 @@
         "newtab": "newtab.html"
     },
     "permissions": [
-        "<all_urls>",
+        "scripting",
         "clipboardRead",
+        "clipboardWrite",
         "contextMenus",
         "downloads",
         "webNavigation",
+        "fontSettings",
         "proxy"
+    ],
+    "host_permissions": [
+        "*://*/*"
     ],
     "icons": {
         "48": "icon.png"
     },
     "name": "My Extension",
     "version": "1.0",
-    "manifest_version": 2
+    "manifest_version": 3
 }
