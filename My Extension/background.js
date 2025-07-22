@@ -23,16 +23,23 @@ chrome.windows.onCreated.addListener(window => chrome.windows.getAll({ populate:
 }));
 let copyTextContextMenuData = { 'text/plain': '' };
 const copyTextContextMenu = { id: 'copyText', title: '复制“”', contexts: ['page', 'link', 'editable'], documentUrlPatterns: ['*://*/*'] };
-chrome.contextMenus.onClicked.addListener(info => {
+chrome.contextMenus.onClicked.addListener((info, tab) => {
     if (copyTextContextMenu.id == info.menuItemId) {
-        const oncopy = evt => {
-            evt.preventDefault();
-            Object.keys(copyTextContextMenuData)
-                .forEach(key => evt.clipboardData.setData(key, copyTextContextMenuData[key]));
+        function copyText(data) {
+            const oncopy = evt => {
+                evt.preventDefault();
+                Object.keys(data)
+                    .forEach(key => evt.clipboardData.setData(key, copyTextContextMenuData[key]));
+            }
+            document.addEventListener('copy', oncopy);
+            document.execCommand('copy');
+            document.removeEventListener('copy', oncopy);
         }
-        document.addEventListener('copy', oncopy);
-        document.execCommand('copy');
-        document.removeEventListener('copy', oncopy);
+        chrome.scripting.executeScript({
+            target: { tabId: tab.id, allFrames: true },
+            func: copyText,
+            args: [copyTextContextMenuData],
+        });
     }
 });
 chrome.tabs.onActivated.addListener(() => {
@@ -287,11 +294,11 @@ chrome.runtime.onMessage.addListener(message => {
                     chrome.i18n.detectLanguage(text, info => {
                         if (info.languages.some(l => l.language == 'zh')) {
                             function show(source, target, x, y) {
-                                if (document.getSelection().toString() != unescape(source)) {
+                                if (document.getSelection().toString() != source) {
                                     return;
                                 }
                                 const element = document.createElement('pre');
-                                element.innerText = unescape(target).trim();
+                                element.innerText = target.trim();
                                 element.style.width = 'initial';
                                 element.style.height = 'initial';
                                 element.style.maxWidth = '30em';
@@ -328,9 +335,9 @@ chrome.runtime.onMessage.addListener(message => {
                             }
                             chrome.tabs.query({ active: true, currentWindow: true }).then(([tab]) => {
                                 chrome.scripting.executeScript({
-                                    target: {tabId: tab.id, allFrames: true },
+                                    target: { tabId: tab.id, allFrames: true },
                                     func: show,
-                                    args: [escape(message.data), escape(text), message.x, message.y],
+                                    args: [message.data, text, message.x, message.y],
                                 });
                             });
                         }
