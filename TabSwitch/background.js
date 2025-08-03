@@ -1,3 +1,4 @@
+const tmp = {};
 chrome.commands.onCommand.addListener((command, tab) => {
     switch (command) {
         case 'switch-tab':
@@ -30,12 +31,17 @@ chrome.windows.onRemoved.addListener(windowId => removeTabs(windowId));
 
 function getTabs(windowId) {
     const key = String(windowId);
+    if (tmp[key] != undefined) {
+        return new Promise(resolve => resolve(tmp[key]));
+    }
     return chrome.storage.session.get(key).then(r => new Set(r[key] ?? []));
 }
 
 function setTabs(windowId, tabs) {
+    const key = String(windowId);
+    tmp[key] = tabs;
     const result = {};
-    result[String(windowId)] = Array.from(tabs);
+    result[key] = Array.from(tabs);
     return chrome.storage.session.set(result);
 }
 
