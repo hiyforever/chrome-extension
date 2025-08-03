@@ -46,5 +46,7 @@ function setTabs(windowId, tabs) {
 }
 
 function removeTabs(windowId) {
-    return chrome.storage.session.remove(String(windowId));
+    const key = String(windowId);
+    tmp[key] = new Set();
+    return chrome.storage.session.remove(key);
 }
